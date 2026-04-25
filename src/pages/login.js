@@ -20,17 +20,29 @@ loginForm.addEventListener('submit', async (e) => {
     setUIState(submitBtn, true, 'Doğrulanıyor...');
     setResult('', '');
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-        setResult('Giriş hatası: ' + error.message, 'error');
+        if (error) {
+            setResult('Giriş hatası: ' + error.message, 'error');
+            setUIState(submitBtn, false, 'Giriş Yap');
+            return;
+        }
+
+        if (!data || !data.user) {
+            setResult('Giriş başarısız: Kullanıcı bulunamadı veya onaylanmamış.', 'error');
+            setUIState(submitBtn, false, 'Giriş Yap');
+            return;
+        }
+
+        // MFA kontrolünü tamamen atla ve doğrudan ana sayfaya yönlendir
+        await finalizeLogin(data.user, password);
         setUIState(submitBtn, false, 'Giriş Yap');
-        return;
-    }
 
-    // MFA kontrolünü tamamen atla ve doğrudan ana sayfaya yönlendir
-    await finalizeLogin(data.user, password);
-    setUIState(submitBtn, false, 'Giriş Yap');
+    } catch (err) {
+        setResult('Sistem hatası: ' + err.message, 'error');
+        setUIState(submitBtn, false, 'Giriş Yap');
+    }
 });
 
 if (mfaBtn) {
