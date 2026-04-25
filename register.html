@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kayıt Ol — Dosya Vadisi WSTP</title>
+<title>Kayıt Ol — FileValley WSTP</title>
 <meta name="description" content="Güvenli dosya transfer platformuna kayıt olun.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f1117;--panel:#161b24;--card:#1c2333;--border:#1e2d3d;--accent:#3b82f6;--accent-dim:#1d4ed8;--green:#22c55e;--red:#ef4444;--text:#e2e8f0;--muted:#64748b;--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+:root{--bg:#0f1117;--panel:#161b24;--card:#1c2333;--border:#1e2d3d;--accent:#10b981;--accent-dim:#059669;--green:#22c55e;--red:#ef4444;--text:#e2e8f0;--muted:#64748b;--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px}
 .auth-shell{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
 .auth-left{display:flex;align-items:center;justify-content:center;padding:40px;background:var(--panel);border-right:1px solid var(--border);overflow-y:auto}
-.auth-right{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f1117 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.auth-right{background:linear-gradient(135deg,#022c22 0%,#1e1b4b 50%,#0f1117 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .auth-form-box{width:100%;max-width:400px;padding:20px 0}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
 .brand-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#6366f1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -30,7 +30,7 @@ input:focus{border-color:var(--accent)}
 .result{margin-top:14px;padding:10px 14px;border-radius:6px;font-size:12px;display:none}
 .result.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;display:block}
 .result.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac;display:block}
-.result.info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#93c5fd;display:block}
+.result.info{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#6ee7b7;display:block}
 .auth-link{margin-top:20px;text-align:center;font-size:13px;color:var(--muted)}
 .auth-link a{color:var(--accent);font-weight:500}
 .mfa-setup{display:none;margin-top:20px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:10px}
@@ -43,9 +43,9 @@ input:focus{border-color:var(--accent)}
 .btn-mfa{padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap}
 .btn-skip{display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;width:100%}
 .btn-skip:hover{color:var(--text)}
-.glow{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,.15) 0%,transparent 70%);border-radius:50%}
+.glow{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(16,185,129,.15) 0%,transparent 70%);border-radius:50%}
 .hero-content{text-align:center;z-index:1;padding:40px}
-.hero-title{font-size:28px;font-weight:700;margin-bottom:12px;background:linear-gradient(135deg,#fff,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-title{font-size:28px;font-weight:700;margin-bottom:12px;background:linear-gradient(135deg,#fff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hero-sub{color:#94a3b8;font-size:14px;margin-bottom:32px;line-height:1.6}
 .steps{display:flex;flex-direction:column;gap:16px;text-align:left}
 .step{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px}
@@ -54,6 +54,7 @@ input:focus{border-color:var(--accent)}
 .step-desc{font-size:11px;color:#64748b;margin-top:2px}
 @media(max-width:768px){.auth-shell{grid-template-columns:1fr}.auth-right{display:none}}
 </style>
+    <script type="module" src="src/core/i18n.js"></script>
 </head>
 <body>
 <div class="auth-shell">
@@ -64,7 +65,7 @@ input:focus{border-color:var(--accent)}
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
         </div>
         <div>
-          <div class="brand-name">Dosya Vadisi</div>
+          <div class="brand-name">FileValley</div>
           <div class="brand-sub">WSTP — Secure Transfer Platform</div>
         </div>
       </div>

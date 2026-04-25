@@ -54,15 +54,12 @@ registerForm.addEventListener('submit', async (e) => {
         setSessionKey(userId, { password });
         sessionStorage.setItem('temp_session_pwd', password);
 
-        if (mfaSetupSection) {
-            await offerMfaSetup(userId);
-            setUIState(submitBtn, false, 'Kayıt Ol');
-        } else {
-            setResult('Kayıt başarılı! Yönlendiriliyorsunuz...', 'success');
-            registerForm.reset();
-            setTimeout(() => { window.location.href = 'login.html'; }, 1200);
-            setUIState(submitBtn, false, 'Kayıt Ol');
-        }
+        setResult('Hesap başarıyla oluşturuldu! Sisteme giriş yapılıyor...', 'success');
+        registerForm.reset();
+        
+        // MFA'yı tamamen atla ve doğrudan ana sayfaya yönlendir
+        setTimeout(() => { window.location.href = 'index.html'; }, 800);
+
     } catch (err) {
         setResult('Kriptografik hata: ' + err.message, 'error');
         setUIState(submitBtn, false, 'Kayıt Ol');

@@ -147,7 +147,7 @@ function renderResumeBanner() {
     if (!pending.length || !fileListQueue) return;
 
     const banner = document.createElement('div');
-    banner.style.cssText = 'background:#1e3a5f;border:1px solid #3b82f6;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:12px;color:#93c5fd;';
+    banner.style.cssText = 'background:#064e3b;border:1px solid #10b981;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:12px;color:#6ee7b7;';
     banner.innerHTML = `<strong>${pending.length} yarım transfer bulundu.</strong> Devam ettirmek için dosyaları tekrar seçin — sistem kaldığı yerden devam eder.
         <button id="btnClearResume" style="margin-left:12px;background:none;border:none;color:#ef4444;cursor:pointer;font-size:11px;">Temizle</button>`;
     fileListQueue.parentElement?.insertBefore(banner, fileListQueue);
@@ -166,7 +166,7 @@ function setStatus(msg, type) {
 function statusIcon(s) {
     if (s === 'success')  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
     if (s === 'error')    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
-    if (s === 'uploading') return `<div style="width:14px;height:14px;border:2px solid #374151;border-top-color:#3b82f6;border-radius:50%;animation:spin .6s linear infinite;"></div>`;
+    if (s === 'uploading') return `<div style="width:14px;height:14px;border:2px solid #374151;border-top-color:#10b981;border-radius:50%;animation:spin .6s linear infinite;"></div>`;
     return '';
 }
 
@@ -184,6 +184,6 @@ function fileIconSVG(name) {
     const ext = (name||'').split('.').pop().toLowerCase();
     const c = ['jpg','jpeg','png','gif','webp','svg'].includes(ext) ? '#f59e0b' :
               ['mp4','mov','avi','mkv'].includes(ext) ? '#a855f7' :
-              ['pdf','doc','docx'].includes(ext) ? '#3b82f6' : '#6b7280';
+              ['pdf','doc','docx'].includes(ext) ? '#10b981' : '#6b7280';
     return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>`;
 }

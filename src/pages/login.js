@@ -28,13 +28,7 @@ loginForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    if (data?.session?.mfa_required || data?.session?.amr?.find(f => f.method === 'totp')) {
-        _pendingSession = { email, password, userId: data.user?.id };
-        showMfaSection();
-        setUIState(submitBtn, false, 'Giriş Yap');
-        return;
-    }
-
+    // MFA kontrolünü tamamen atla ve doğrudan ana sayfaya yönlendir
     await finalizeLogin(data.user, password);
     setUIState(submitBtn, false, 'Giriş Yap');
 });

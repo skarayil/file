@@ -193,7 +193,7 @@ function renderTransferQueue() {
         const isUp = entry.action === LOG_ACTIONS.UPLOAD;
         div.className = `queue-item qi-success`;
         div.innerHTML = `
-            <span style="color:${isUp ? '#60a5fa' : '#34d399'};font-size:13px;">${isUp ? '↑' : '↓'}</span>
+            <span style="color:${isUp ? '#34d399' : '#34d399'};font-size:13px;">${isUp ? '↑' : '↓'}</span>
             <span class="qi-name">${escHtml(entry.filename || entry.action)}</span>
             <span class="qi-size">${entry.size ? formatSize(entry.size) : ''}</span>
             <div class="qi-bar"><div class="qi-fill" style="width:100%"></div></div>`;
@@ -222,7 +222,7 @@ function renderChart(files) {
             labels,
             datasets: [{
                 data,
-                backgroundColor: ['#3b82f6','#22c55e','#a855f7','#f97316','#ef4444','#eab308','#06b6d4'],
+                backgroundColor: ['#10b981','#22c55e','#a855f7','#f97316','#ef4444','#eab308','#06b6d4'],
                 borderWidth: 0,
                 hoverOffset: 6
             }]

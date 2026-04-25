@@ -1,4 +1,4 @@
-# Dosya Vadisi WSTP (Web-based Secure Transfer Protocol)
+# FileValley WSTP (Web-based Secure Transfer Protocol)
 
 Endüstri standartlarında, istemci tarafında E2E şifrelenmiş, yüksek güvenlikli dosya transfer ve depolama platformu.
 
