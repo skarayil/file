@@ -185,56 +185,31 @@ function filterAndRenderFiles() {
     }
 }
 
-function renderList(files) {
-    fileList.innerHTML = '';
-    if (files.length === 0) {
-        fileList.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 40px; color: #6b7280;">Hiç dosya bulunamadı.</td></tr>';
-        return;
+window.handleDownload = async (e, fileId) => {
+    const file = allFiles.find(f => f.id === fileId);
+    if (file) await startDownload(file, e.target);
+};
+
+window.openShareModal = (e, fileId) => {
+    const file = allFiles.find(f => f.id === fileId);
+    if (file) {
+        currentFileToShare = file;
+        shareFileNameDisplay.textContent = `Seçilen Dosya: ${file.filename}`;
+        shareUsernamesInput.value = '';
+        shareExpiresInput.value = '';
+        shareLimitInput.value = '-1';
+        shareModal.style.display = 'block';
     }
+};
 
-    files.forEach(file => {
-        const tr = document.createElement('tr');
-        const date = new Date(file.created_at).toLocaleDateString('tr-TR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        const fileType = getFileType(file.filename);
+async function startDownload(fileMetadata, btn) {
+    const originalText = btn.textContent;
 
-        tr.innerHTML = `
-            <td>
-                <div class="file-name-cell">
-                    <span class="file-icon">${getFileIcon(file.filename)}</span>
-                    <span class="file-name-text">${file.filename}</span>
-                </div>
-            </td>
-            <td>
-                <span class="file-type-badge ${fileType}">
-                    ${getFileIcon(file.filename)} ${getFileTypeName(fileType)}
-                </span>
-            </td>
-            <td>${date}</td>
-            <td>
-                <button class="btn-download" data-id="${file.id}">
-                    İndir
-                </button>
-                <button class="btn-share" data-id="${file.id}">
-                    Paylaş
-                </button>
-            </td>
-        `;
-
-        tr.querySelector('.btn-download').addEventListener('click', () => handleDownload(file));
-        tr.querySelector('.btn-share').addEventListener('click', () => openShareModal(file));
-
-        fileList.appendChild(tr);
-    });
-}
 
 function renderGroupedList(files) {
     fileList.innerHTML = '';
     if (files.length === 0) {
-        fileList.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 40px; color: #6b7280;">Hiç dosya bulunamadı.</td></tr>';
+        fileList.innerHTML = '<tr><td colspan="4" class="empty-state">Hiç dosya bulunamadı.</td></tr>';
         return;
     }
 
@@ -253,11 +228,11 @@ function renderGroupedList(files) {
         // Group header
         const headerRow = document.createElement('tr');
         headerRow.innerHTML = `
-            <td colspan="4" style="background: #f9fafb; padding: 12px 16px;">
-                <div style="display: flex; align-items: center; gap: 10px; font-weight: 600; color: #111827;">
-                    <span style="font-size: 1.3rem;">${getFileTypeGroupIcon(type)}</span>
+            <td colspan="4" style="background: var(--bg-hover); padding: 12px 16px; font-weight: 600;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>${getFileTypeGroupIcon(type)}</span>
                     <span>${getFileTypeName(type)}</span>
-                    <span style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">(${groupFiles.length})</span>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">(${groupFiles.length})</span>
                 </div>
             </td>
         `;
@@ -274,30 +249,20 @@ function renderGroupedList(files) {
 
             tr.innerHTML = `
                 <td>
-                    <div class="file-name-cell">
+                    <div class="file-name-cell" style="display:flex;align-items:center;gap:10px;">
                         <span class="file-icon">${getFileIcon(file.filename)}</span>
                         <span class="file-name-text">${file.filename}</span>
                     </div>
                 </td>
                 <td>
-                    <span class="file-type-badge ${type}">
-                        ${getFileIcon(file.filename)} ${getFileTypeName(type)}
-                    </span>
+                    <span class="file-type-chip">${getFileTypeName(type)}</span>
                 </td>
                 <td>${date}</td>
                 <td>
-                    <button class="btn-download" data-id="${file.id}">
-                        İndir
-                    </button>
-                    <button class="btn-share" data-id="${file.id}">
-                        Paylaş
-                    </button>
+                   <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;" onclick="handleDownload(event, '${file.id}')">İndir</button>
+                   <button class="btn" style="padding:6px 12px;font-size:12px;background:#e2e8f0;" onclick="openShareModal(event, '${file.id}')">Paylaş</button>
                 </td>
             `;
-
-            tr.querySelector('.btn-download').addEventListener('click', () => handleDownload(file));
-            tr.querySelector('.btn-share').addEventListener('click', () => openShareModal(file));
-
             fileList.appendChild(tr);
         });
     });
@@ -479,9 +444,8 @@ async function handleShareProcess() {
         const shareDataArray = [];
 
         for (const recipient of recipients) {
-            console.log(`${recipient.username} için anahtar hazırlanıyor...`);
-
             const encryptedKeyForReceiver = await reEncryptKeyForShare(
+
                 senderProfile.encrypted_private_key,
                 password,
                 currentFileToShare.encryption_key,

@@ -231,7 +231,7 @@ function renderList(shares) {
     sharedFileList.innerHTML = '';
 
     if (!shares || shares.length === 0) {
-        sharedFileList.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color: #6b7280;">Hiç paylaşılan dosya bulunamadı.</td></tr>';
+        sharedFileList.innerHTML = '<tr><td colspan="6" class="empty-state">Hiç paylaşılan dosya bulunamadı.</td></tr>';
         return;
     }
 
@@ -246,46 +246,36 @@ function renderList(shares) {
 
         if (share.expires_at) {
             const expireDate = new Date(share.expires_at);
-            expireText = expireDate.toLocaleDateString('tr-TR', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            expireText = expireDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
         }
 
         const limitText = share.downloads_remained === -1 ? "Limitsiz" : share.downloads_remained;
-        const isLimitReached = share.downloads_remained === 0;
         const isDisabled = !isShareActive(share);
 
         tr.innerHTML = `
             <td>
-                <div class="file-name-cell">
+                <div class="file-name-cell" style="display:flex;align-items:center;gap:10px;">
                     <span class="file-icon">${getFileIcon(fileName)}</span>
                     <span class="file-name-text">${fileName}</span>
                 </div>
             </td>
             <td>
-                <span class="file-type-badge ${fileType}">
-                    ${getFileIcon(fileName)} ${getFileTypeName(fileType)}
-                </span>
+                <span class="file-type-chip">${getFileTypeName(fileType)}</span>
             </td>
             <td>${senderName}</td>
             <td>
-                <span class="${isExpired ? 'status-expired' : ''}">${expireText}</span>
-                ${isExpired ? '<br><span class="status-badge expired">Süresi Doldu</span>' : ''}
+                <span style="${isExpired ? 'color:var(--red)' : ''}">${expireText}</span>
             </td>
-            <td class="${isLimitReached ? 'status-expired' : ''}">${limitText}</td>
+            <td>${limitText}</td>
             <td>
-                <button class="btn-download" data-id="${share.id}" ${isDisabled ? 'disabled' : ''}>
+                <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;" data-id="${share.id}" ${isDisabled ? 'disabled style="background:#cbd5e1"' : ''}>
                     ${isDisabled ? 'Erişim Yok' : 'İndir'}
                 </button>
             </td>
         `;
 
         if (!isDisabled) {
-            tr.querySelector('.btn-download').addEventListener('click', () => handleSharedDownload(share));
+            tr.querySelector('.btn-download')?.addEventListener('click', () => handleSharedDownload(share));
         }
 
         sharedFileList.appendChild(tr);
