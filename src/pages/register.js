@@ -28,20 +28,26 @@ registerForm.addEventListener('submit', async (e) => {
     setUIState(submitBtn, true, 'Kayıt yapılıyor...');
     setResult('Hesap oluşturuluyor...', 'info');
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { username } }
-    });
-
-    if (authError) { setResult('Kayıt hatası: ' + authError.message, 'error'); setUIState(submitBtn, false, 'Kayıt Ol'); return; }
-
-    const userId = authData.user.id;
-    _pendingUser = { userId, password, username };
-
-    setResult('Şifreleme anahtarları üretiliyor...', 'info');
-
     try {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { username } }
+        });
+
+        if (authError) { setResult('Kayıt hatası: ' + authError.message, 'error'); setUIState(submitBtn, false, 'Kayıt Ol'); return; }
+        
+        if (!authData || !authData.user) {
+            setResult('Kayıt başarısız: Bu e-posta kullanımda olabilir veya sistem hatası.', 'error');
+            setUIState(submitBtn, false, 'Kayıt Ol');
+            return;
+        }
+
+        const userId = authData.user.id;
+        _pendingUser = { userId, password, username };
+
+        setResult('Şifreleme anahtarları üretiliyor...', 'info');
+
         const keys = await generateEncryptedKeys(password);
 
         const { error: profileError } = await supabase
@@ -61,7 +67,7 @@ registerForm.addEventListener('submit', async (e) => {
         setTimeout(() => { window.location.href = 'index.html'; }, 800);
 
     } catch (err) {
-        setResult('Kriptografik hata: ' + err.message, 'error');
+        setResult('Kayıt/Kriptografik hata: ' + err.message, 'error');
         setUIState(submitBtn, false, 'Kayıt Ol');
     }
 });
