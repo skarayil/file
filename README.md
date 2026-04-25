@@ -53,3 +53,9 @@ FileValley is a professional, secure, and unified file transfer platform featuri
 
 ---
 **Verified Professional Delivery — ✅ All Tests Passed**
+
+## ✍️ Author
+Developed and maintained by **Sude Naz Karayıldırım**.
+
+---
+Copyright © 2026 **Sude Naz Karayıldırım**. Tüm Hakları Saklıdır.

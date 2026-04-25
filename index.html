@@ -1,3 +1,7 @@
+<!-- 
+    Copyright © 2026 Sude Naz Karayıldırım. All rights reserved.
+    This software is designed and developed by Sude Naz Karayıldırım.
+-->
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -78,7 +82,7 @@
         #loginScreen { position: fixed; inset: 0; background: linear-gradient(135deg, #eef5e8 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
         .login-wrapper { width: 100%; max-width: 420px; background: var(--surface); padding: 48px 40px; border-radius: var(--radius-xl); box-shadow: 0 20px 40px rgba(46, 125, 50, 0.15); border: 1px solid var(--border-color); text-align: center; animation: slideUp 0.6s ease-out; position: relative; overflow: hidden; }
         .login-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--primary); }
-        .login-logo { width: 72px; height: 72px; background: var(--primary); color: white; border-radius: var(--radius-lg); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 8px 16px rgba(46, 125, 50, 0.2); }
+        .login-logo { width: 96px; height: 96px; background: #e8f5e9; color: var(--primary); border-radius: var(--radius-lg); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.1); }
         .login-wrapper h2 { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 8px; letter-spacing: -0.5px; }
         .login-wrapper p { color: var(--primary-hover); font-size: 15px; margin-bottom: 32px; font-weight: 500; opacity: 0.85; }
         
@@ -118,7 +122,13 @@
         .lang-btn { flex: 1; padding: 6px 0; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); border: none; background: transparent; color: var(--text-muted); }
         .lang-btn.active { background: white; color: var(--primary); box-shadow: var(--shadow-sm); }
 
-        .sidebar-footer { padding: 24px; border-top: 1px solid var(--border-light); margin-top: auto; }
+        .sidebar-footer { padding: 24px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-light); text-align: center; }
+        .sidebar-footer b { color: var(--primary); }
+
+        /* --- FOOTER --- */
+        .app-footer { margin-top: auto; padding: 24px 0; border-top: 1px solid var(--border-light); text-align: center; font-size: 13px; color: var(--text-light); }
+        .app-footer b { color: var(--primary); }
+
         .user-profile { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; }
         .user-info-text { display: flex; flex-direction: column; }
@@ -127,7 +137,7 @@
         .btn-logout { width: 100%; justify-content: flex-start; padding: 12px 16px; }
 
         /* MAIN CONTENT */
-        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px 48px; max-width: 1400px; animation: fadeIn 0.4s ease-out; }
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px 48px; max-width: 1400px; animation: fadeIn 0.4s ease-out; min-height: 100vh; display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
@@ -234,15 +244,24 @@
             .page-header { flex-direction: column; align-items: flex-start; }
             .conn-card { flex-direction: column; align-items: flex-start; }
         }
+        
+        /* TOAST NOTIFICATION */
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; }
+        .toast { background: var(--surface); color: var(--text-dark); padding: 16px 24px; border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px; animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 350px; border-left: 4px solid var(--primary); }
+        .toast.error { border-left-color: var(--danger); }
+        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
     </style>
 </head>
 <body>
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <!-- 1. GİRİŞ EKRANI -->
     <div id="loginScreen">
         <div class="login-wrapper" id="loginWrapper">
             <div class="login-logo">
-                <img src="img/logo.png" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;">
+                <img src="img/logo.png" alt="Logo" style="width: 64px; height: 64px; object-fit: contain;">
             </div>
             <h2 data-i18n="app_title">FileValley</h2>
             <p data-i18n="login_subtitle">Güvenli yönetim paneline giriş yapın</p>
@@ -266,12 +285,15 @@
                     <a href="#" onclick="register(); return false;" data-i18n="register" style="font-weight: 700; margin-left: 4px;">Kayıt Ol</a>
                 </div>
             </div>
+            <div style="margin-top: 32px; font-size: 11px; color: #6b7280;">
+                &copy; 2026 <b>Sude Naz Karayıldırım</b>. Tüm hakları saklıdır.
+            </div>
         </div>
 
         <!-- KAYIT EKRANI -->
         <div class="login-wrapper" id="registerWrapper" style="display: none;">
             <div class="login-logo">
-                <img src="img/logo.png" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;">
+                <img src="img/logo.png" alt="Logo" style="width: 64px; height: 64px; object-fit: contain;">
             </div>
             <h2 data-i18n="register_title">Hesap Oluştur</h2>
             <p data-i18n="register_subtitle">Lütfen bilgilerinizi girin</p>
@@ -298,12 +320,15 @@
                     <a href="#" onclick="showLogin(); return false;" data-i18n="login_btn" style="font-weight: 700; margin-left: 4px;">Giriş Yap</a>
                 </div>
             </div>
+            <div style="margin-top: 32px; font-size: 11px; color: #6b7280;">
+                &copy; 2026 <b>Sude Naz Karayıldırım</b>. Tüm hakları saklıdır.
+            </div>
         </div>
 
         <!-- ŞİFRE SIFIRLAMA EKRANI -->
         <div class="login-wrapper" id="forgotWrapper" style="display: none;">
             <div class="login-logo">
-                <img src="img/logo.png" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;">
+                <img src="img/logo.png" alt="Logo" style="width: 64px; height: 64px; object-fit: contain;">
             </div>
             <h2 data-i18n="forgot_title">Şifre Sıfırlama</h2>
             <p data-i18n="forgot_subtitle">E-posta adresinizi girin, sıfırlama bağlantısı gönderelim.</p>
@@ -318,6 +343,9 @@
             <div class="login-links" style="margin-top: 24px;">
                 <a href="#" onclick="showLogin(); return false;" data-i18n="back_to_login">Giriş Ekranına Dön</a>
             </div>
+            <div style="margin-top: 32px; font-size: 11px; color: #6b7280;">
+                &copy; 2026 <b>Sude Naz Karayıldırım</b>. Tüm hakları saklıdır.
+            </div>
         </div>
     </div>
 
@@ -328,7 +356,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon" style="background: transparent; padding: 0;">
-                    <img src="img/logo.png" alt="Logo" style="width: 28px; height: 28px; object-fit: contain;">
+                    <img src="img/logo.png" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;">
                 </div>
                 <h1 data-i18n="app_title">FileValley</h1>
             </div>
@@ -371,6 +399,10 @@
                     <span data-i18n="logout">Çıkış Yap</span>
                 </button>
             </div>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 <b>Sude Naz Karayıldırım</b></p>
+                <p>Tüm Hakları Saklıdır.</p>
+            </div>
         </aside>
 
         <!-- İÇERİK ALANI -->
@@ -389,21 +421,21 @@
                     <div class="stat-card">
                         <div class="stat-info">
                             <span class="stat-label" data-i18n="stat_files">Toplam Dosya</span>
-                            <span class="stat-value">1,248</span>
+                            <span class="stat-value" id="statTotalFiles">—</span>
                         </div>
                         <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-info">
                             <span class="stat-label" data-i18n="stat_space">Kullanılan Alan</span>
-                            <span class="stat-value">45.2 GB</span>
+                            <span class="stat-value" id="statTotalSpace">—</span>
                         </div>
                         <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-info">
                             <span class="stat-label" data-i18n="stat_shares">Aktif Paylaşımlar</span>
-                            <span class="stat-value">34</span>
+                            <span class="stat-value" id="statActiveShares">—</span>
                         </div>
                         <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
                     </div>
@@ -422,19 +454,8 @@
                                         <th data-i18n="th_status">Durum</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><div class="file-name-cell"><span class="file-icon">📄</span> Finans_Raporu_Q3.pdf</div></td>
-                                        <td>Bugün, 14:30</td>
-                                        <td>2.4 MB</td>
-                                        <td><span style="color:var(--primary); font-weight:600; background:var(--primary-alpha); padding:4px 8px; border-radius:4px; font-size:12px;" data-i18n="success">Başarılı</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><div class="file-name-cell"><span class="file-icon">📦</span> Yedek_Sistem_Tam.zip</div></td>
-                                        <td>Dün, 09:15</td>
-                                        <td>1.2 GB</td>
-                                        <td><span style="color:var(--primary); font-weight:600; background:var(--primary-alpha); padding:4px 8px; border-radius:4px; font-size:12px;" data-i18n="success">Başarılı</span></td>
-                                    </tr>
+                                <tbody id="recentActivitiesBody">
+                                    <tr><td colspan="4" style="text-align:center; padding:24px; color:var(--text-muted);">Yükleniyor...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -483,27 +504,7 @@
                                     <th style="text-align: right;" data-i18n="th_actions">İşlemler</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td><div class="file-name-cell"><span class="file-icon">🖼️</span> Tasarim_V1_Final.png</div></td>
-                                    <td data-i18n="type_image">Görsel</td>
-                                    <td>4.2 MB</td>
-                                    <td>15 Nisan 2024</td>
-                                    <td style="text-align: right; display:flex; gap:8px; justify-content: flex-end;">
-                                        <button class="btn btn-outline" style="padding: 6px 12px;" onclick="openShareModal()" data-i18n="btn_share">Paylaş</button>
-                                        <button class="btn btn-danger" style="padding: 6px 12px;" data-i18n="btn_delete">Sil</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><div class="file-name-cell"><span class="file-icon">📊</span> Satis_Verileri.xlsx</div></td>
-                                    <td data-i18n="type_spreadsheet">Tablo</td>
-                                    <td>850 KB</td>
-                                    <td>12 Nisan 2024</td>
-                                    <td style="text-align: right; display:flex; gap:8px; justify-content: flex-end;">
-                                        <button class="btn btn-outline" style="padding: 6px 12px;" onclick="openShareModal()" data-i18n="btn_share">Paylaş</button>
-                                        <button class="btn btn-danger" style="padding: 6px 12px;" data-i18n="btn_delete">Sil</button>
-                                    </td>
-                                </tr>
+                            <tbody id="filesTableBody">
                             </tbody>
                         </table>
                     </div>
@@ -548,10 +549,6 @@
                                 <div id="uploadProgressBar" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s;"></div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="queue-box" data-i18n="empty_queue">
-                        Kuyruk boş. Dosya yüklemek için yukarıdan dosya seçin.
                     </div>
                 </div>
             </div>
@@ -599,22 +596,16 @@
                         <div class="ftp-panel">
                             <div class="ftp-header">
                                 <span class="ftp-title" data-i18n="local_site">YEREL SİTE</span>
-                                <span class="ftp-path">C:\Kullanıcılar\Admin\Belgeler</span>
+                                <span class="ftp-path" id="localFtpPath">/ dosyalarım</span>
                             </div>
-                            <div class="ftp-list">
+                            <div class="ftp-list" id="localFtpList">
                                 <div class="ftp-row header">
                                     <span></span><span data-i18n="th_name">Ad</span><span data-i18n="th_size">Boyut</span><span data-i18n="th_date">Tarih</span><span>SHA-256</span>
                                 </div>
-                                <div class="ftp-row" onclick="selectFtpRow(this)">
-                                    <span>📄</span><span style="font-weight:500;">sunum_v2.pdf</span><span>3.4 MB</span><span>14.04.2024</span><span class="ftp-hash">b4a7</span>
-                                </div>
-                                <div class="ftp-row" onclick="selectFtpRow(this)">
-                                    <span>📁</span><span style="font-weight:500;">Projeler</span><span>--</span><span>12.04.2024</span><span class="ftp-hash">--</span>
-                                </div>
                             </div>
                             <div class="ftp-actions">
-                                <button class="btn btn-primary" onclick="addFtpLog(currentLang === 'tr' ? 'Dosya sunucuya yüklendi.' : 'File uploaded to server.', 'success', 'upload')" data-i18n="put_btn">↑ YÜKLE (PUT)</button>
-                                <button class="btn btn-danger" onclick="addFtpLog(currentLang === 'tr' ? 'Seçili yerel dosya silindi.' : 'Selected local file deleted.', 'error', 'delete')" data-i18n="del_btn">SİL (DEL)</button>
+                                <button class="btn btn-primary" onclick="ftpPut()" data-i18n="put_btn">↑ YÜKLE (PUT)</button>
+                                <button class="btn btn-danger" onclick="ftpDeleteLocal()" data-i18n="del_btn">SİL (DEL)</button>
                             </div>
                         </div>
 
@@ -622,7 +613,7 @@
                         <div class="ftp-panel">
                             <div class="ftp-header">
                                 <span class="ftp-title" data-i18n="remote_site">UZAK SİTE</span>
-                                <span class="ftp-path">/var/www/html/uploads</span>
+                                <span class="ftp-path">/ bana paylaşılanlar</span>
                             </div>
                             <div class="ftp-list" id="remoteFtpList">
                                 <div class="ftp-row header">
@@ -630,18 +621,18 @@
                                 </div>
                             </div>
                             <div class="ftp-actions">
-                                <button class="btn btn-primary" onclick="addFtpLog(currentLang === 'tr' ? 'Dosya yerel diske indirildi.' : 'File downloaded to local disk.', 'success', 'download')" data-i18n="get_btn">↓ İNDİR (GET)</button>
-                                <button class="btn btn-danger" onclick="addFtpLog(currentLang === 'tr' ? 'Seçili uzak dosya silindi.' : 'Selected remote file deleted.', 'error', 'delete')" data-i18n="del_btn">SİL (DEL)</button>
+                                <button class="btn btn-primary" onclick="ftpGet()" data-i18n="get_btn">↓ İNDİR (GET)</button>
+                                <button class="btn btn-danger" onclick="ftpDeleteRemote()" data-i18n="del_btn">SİL (DEL)</button>
                             </div>
                         </div>
-
                     </div>
-
-                    <!-- (Oturum günlüğü kaldırıldı) -->
-
                 </div>
             </div>
 
+            <footer class="app-footer">
+                <p>&copy; 2026 — <b>Sude Naz Karayıldırım</b> tarafından tasarlanmıştır.</p>
+                <p style="font-size: 11px; margin-top: 4px; opacity: 0.7;">FileValley — Güvenli Dosya Depolama ve Paylaşım Platformu</p>
+            </footer>
         </main>
     </div>
 
@@ -679,6 +670,20 @@
     </div>
 
     <script>
+        function showToast(msg, isError = false) {
+            const container = document.getElementById('toastContainer');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.innerHTML = `<span>${isError ? '⚠️' : '✅'}</span> <div>${msg}</div>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         // --- ÇEVİRİ SİSTEMİ ---
         const translations = {
             tr: {
@@ -938,16 +943,16 @@
                     });
                     const data = await res.json();
                     if (!res.ok) {
-                        alert(data.error);
+                        showToast(data.error, true);
                         return;
                     }
-                    alert(currentLang === 'tr' ? 'Kayıt başarılı! Şimdi giriş yapabilirsiniz.' : 'Registration successful! You can now log in.');
+                    showToast(currentLang === 'tr' ? 'Kayıt başarılı! Şimdi giriş yapabilirsiniz.' : 'Registration successful! You can now log in.');
                     document.getElementById('username').value = u;
                     document.getElementById('password').value = p;
                     showLogin();
                 } catch(err) {
                     console.error(err);
-                    alert("Sunucuya bağlanılamadı.");
+                    showToast("Sunucuya bağlanılamadı.", true);
                 }
             } else {
                 document.getElementById('registerError').style.display = 'block';
@@ -957,10 +962,10 @@
         function performReset() {
             const e = document.getElementById('forgotEmail').value;
             if(e) {
-                alert(currentLang === 'tr' ? 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.' : 'Password reset link sent to your email.');
+                showToast(currentLang === 'tr' ? 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.' : 'Password reset link sent to your email.');
                 showLogin();
             } else {
-                alert(currentLang === 'tr' ? 'Lütfen geçerli bir e-posta adresi girin.' : 'Please enter a valid email address.');
+                showToast(currentLang === 'tr' ? 'Lütfen geçerli bir e-posta adresi girin.' : 'Please enter a valid email address.', true);
             }
         }
 
@@ -981,7 +986,7 @@
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('appShell').style.display = 'block';
                     document.getElementById('displayUsername').innerText = data.username;
-                    initChart();
+                    fetchDashboard();
                     fetchFiles();
                 } else {
                     document.getElementById('loginError').style.display = 'block';
@@ -998,7 +1003,12 @@
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+            document.getElementById('displayUsername').innerText = '';
             document.getElementById('loginError').style.display = 'none';
+            const tbody = document.getElementById('filesTableBody');
+            if (tbody) tbody.innerHTML = '';
+            const ftpList = document.getElementById('remoteFtpList');
+            if (ftpList) ftpList.innerHTML = '';
             showLogin();
         }
 
@@ -1011,57 +1021,88 @@
             navElement.classList.add('active');
             
             if (pageId === 'sftp') {
+                fetchFtpLocal();
                 fetchFtpRemote();
             }
         }
 
         // --- MODAL ---
-        function openShareModal() { document.getElementById('shareModal').style.display = 'flex'; }
+        function openShareModal(fileId) {
+            window._shareFileId = fileId || null;
+            document.getElementById('shareModal').style.display = 'flex';
+        }
         function closeShareModal() { document.getElementById('shareModal').style.display = 'none'; }
         async function submitShare() {
-            const users = document.getElementById('shareUsers').value;
+            const users = document.getElementById('shareUsers').value.trim();
             const date = document.getElementById('shareDate').value;
             const time = document.getElementById('shareTime').value;
             const limit = document.getElementById('shareLimit').value;
-            
+
+            if (!users) {
+                showToast(currentLang === 'tr' ? 'Lütfen en az bir kullanıcı adı girin.' : 'Please enter at least one username.', true);
+                return;
+            }
+
             try {
                 const res = await fetch('http://localhost:3000/api/share', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ fileId: '123', users, date, time, limit })
+                    body: JSON.stringify({ fileId: window._shareFileId, users, date, time, limit })
                 });
-                const data = await res.json();
-                
-                const shareUrl = `http://localhost:3000/share/${data.share.id}`;
-                prompt(currentLang === 'tr' ? 'Paylaşım bağlantısı oluşturuldu. Kopyalamak için Ctrl+C / Cmd+C yapın:' : 'Share link created. Press Ctrl+C / Cmd+C to copy:', shareUrl);
-                
+                if (!res.ok) throw new Error();
                 closeShareModal();
+                document.getElementById('shareUsers').value = '';
+                showToast(currentLang === 'tr' ? 'Dosya başarıyla paylaşıldı!' : 'File shared successfully!');
             } catch(e) {
                 console.error(e);
+                showToast(currentLang === 'tr' ? 'Paylaşım sırasında bir hata oluştu.' : 'An error occurred while sharing.', true);
             }
         }
 
+        function getUser() {
+            return document.getElementById('displayUsername').innerText;
+        }
+
         async function fetchFiles() {
+            const currentUser = getUser();
+            if (!currentUser) return;
             try {
-                const res = await fetch('http://localhost:3000/api/files');
+                const res = await fetch('http://localhost:3000/api/files?username=' + encodeURIComponent(currentUser));
                 const files = await res.json();
-                const tableBody = document.querySelector('#page-files tbody');
-                tableBody.innerHTML = ''; // Temizle
-                
+                const tableBody = document.getElementById('filesTableBody');
+                if (!tableBody) return;
+                tableBody.innerHTML = '';
+
+                if (files.length === 0) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = `<td colspan="5" style="text-align:center; padding: 32px; color: var(--text-muted);">${currentLang === 'tr' ? 'Henüz hiç dosya yüklenmedi.' : 'No files uploaded yet.'}</td>`;
+                    tableBody.appendChild(emptyRow);
+                    return;
+                }
+
                 files.reverse().forEach(f => {
                     const fileSize = (f.size / 1024 / 1024).toFixed(2) + ' MB';
                     const displaySize = fileSize === "0.00 MB" ? "12 KB" : fileSize;
                     const date = new Date(f.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-                    
+
+                    const sharedBadge = f.isShared
+                        ? `<span style="font-size:10px; background:var(--primary-alpha); color:var(--primary); padding:2px 8px; border-radius:4px; margin-left:8px; font-weight:600;">${currentLang === 'tr' ? f.sharedBy + ' paylaştı' : 'shared by ' + f.sharedBy}</span>`
+                        : '';
+
+                    const actionButtons = f.isShared
+                        ? `<span style="font-size:12px; color:var(--text-muted);">${currentLang === 'tr' ? 'Salt okunur' : 'Read only'}</span>`
+                        : `<button class="btn btn-outline" style="padding: 6px 12px;" onclick="downloadFile('${f.id}', '${f.filename}')">↓</button>
+                           <button class="btn btn-outline" style="padding: 6px 12px;" onclick="openShareModal('${f.id}')">${currentLang === 'tr' ? translations.tr.btn_share : translations.en.btn_share}</button>
+                           <button class="btn btn-danger" style="padding: 6px 12px;" onclick="deleteFile('${f.id}')">${currentLang === 'tr' ? translations.tr.btn_delete : translations.en.btn_delete}</button>`;
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td><div class="file-name-cell"><span class="file-icon">📄</span> ${f.filename}</div></td>
-                        <td data-i18n="type_document">${currentLang === 'tr' ? 'Belge' : 'Document'}</td>
+                        <td><div class="file-name-cell"><span class="file-icon">📄</span> ${f.filename}${sharedBadge}</div></td>
+                        <td>${currentLang === 'tr' ? 'Belge' : 'Document'}</td>
                         <td>${displaySize}</td>
                         <td>${date}</td>
-                        <td style="text-align: right; display:flex; gap:8px; justify-content: flex-end;">
-                            <button class="btn btn-outline" style="padding: 6px 12px;" onclick="openShareModal()" data-i18n="btn_share">${currentLang === 'tr' ? translations.tr.btn_share : translations.en.btn_share}</button>
-                            <button class="btn btn-danger" style="padding: 6px 12px;" onclick="deleteFile('${f.id}')" data-i18n="btn_delete">${currentLang === 'tr' ? translations.tr.btn_delete : translations.en.btn_delete}</button>
+                        <td style="text-align: right; display:flex; gap:8px; justify-content: flex-end; align-items:center;">
+                            ${actionButtons}
                         </td>
                     `;
                     tableBody.appendChild(tr);
@@ -1072,53 +1113,142 @@
         async function deleteFile(id) {
             if(!confirm(currentLang === 'tr' ? 'Bu dosyayı silmek istediğinize emin misiniz?' : 'Are you sure you want to delete this file?')) return;
             try {
-                await fetch('http://localhost:3000/api/files/' + id, { method: 'DELETE' });
+                await fetch('http://localhost:3000/api/files/' + id + '?username=' + encodeURIComponent(getUser()), { method: 'DELETE' });
                 fetchFiles();
+                fetchDashboard();
             } catch(err) { console.error(err); }
+        }
+
+        function downloadFile(id, filename) {
+            showToast(currentLang === 'tr' ? `"${filename}" indiriliyor...` : `Downloading "${filename}"...`);
+            // Gerçek bir backend'de burada download linki oluşturulur
+        }
+
+        async function fetchFtpLocal() {
+            try {
+                const res = await fetch('http://localhost:3000/api/files?username=' + encodeURIComponent(getUser()));
+                const files = await res.json();
+                const container = document.getElementById('localFtpList');
+                if (!container) return;
+
+                const header = `<div class="ftp-row header"><span></span><span>${currentLang === 'tr' ? 'Ad' : 'Name'}</span><span>${currentLang === 'tr' ? 'Boyut' : 'Size'}</span><span>${currentLang === 'tr' ? 'Tarih' : 'Date'}</span><span>SHA-256</span></div>`;
+                container.innerHTML = header;
+
+                const ownFiles = files.filter(f => !f.isShared);
+
+                if (ownFiles.length === 0) {
+                    container.innerHTML += `<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">${currentLang === 'tr' ? 'Henüz dosya yüklenmedi.' : 'No files uploaded yet.'}</div>`;
+                    return;
+                }
+
+                ownFiles.forEach(f => {
+                    const size = formatSize(f.size);
+                    const date = new Date(f.date).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    const hash = f.storedName ? f.storedName.substring(0, 8) : '--------';
+                    const row = document.createElement('div');
+                    row.className = 'ftp-row';
+                    row.dataset.fileId = f.id;
+                    row.onclick = function() { selectFtpRow(this, 'local'); };
+                    row.innerHTML = `<span>📄</span><span style="font-weight:500;">${f.filename}</span><span>${size}</span><span>${date}</span><span class="ftp-hash">${hash.substring(0,4)}</span>`;
+                    container.appendChild(row);
+                });
+            } catch(e) {
+                console.error('Yerel liste yüklenemedi', e);
+            }
         }
 
         async function fetchFtpRemote() {
             try {
-                const res = await fetch('http://localhost:3000/api/ftp/remote');
+                const res = await fetch('http://localhost:3000/api/files?username=' + encodeURIComponent(getUser()));
                 const files = await res.json();
                 const container = document.getElementById('remoteFtpList');
-                if(!container) return;
-                
-                container.innerHTML = `
-                    <div class="ftp-row header">
-                        <span></span><span data-i18n="th_name">${currentLang === 'tr' ? 'Ad' : 'Name'}</span><span data-i18n="th_size">${currentLang === 'tr' ? 'Boyut' : 'Size'}</span><span data-i18n="th_date">${currentLang === 'tr' ? 'Tarih' : 'Date'}</span><span>SHA-256</span>
-                    </div>
-                `;
-                
-                files.reverse().forEach(f => {
-                    const fileSize = (f.size / 1024 / 1024).toFixed(2) + ' MB';
-                    const displaySize = fileSize === "0.00 MB" ? "12 KB" : fileSize;
-                    const date = new Date(f.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
-                    
+                if (!container) return;
+
+                const header = `<div class="ftp-row header"><span></span><span>${currentLang === 'tr' ? 'Ad' : 'Name'}</span><span>${currentLang === 'tr' ? 'Boyut' : 'Size'}</span><span>${currentLang === 'tr' ? 'Tarih' : 'Date'}</span><span>SHA-256</span></div>`;
+                container.innerHTML = header;
+
+                const sharedFiles = files.filter(f => f.isShared);
+
+                if (sharedFiles.length === 0) {
+                    container.innerHTML += `<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">${currentLang === 'tr' ? 'Size paylaşılan dosya yok.' : 'No files shared with you.'}</div>`;
+                    return;
+                }
+
+                sharedFiles.forEach(f => {
+                    const size = formatSize(f.size);
+                    const date = new Date(f.date).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    const hash = f.storedName ? f.storedName.substring(0, 8) : '--------';
                     const row = document.createElement('div');
                     row.className = 'ftp-row';
-                    row.onclick = function() { selectFtpRow(this); };
-                    row.innerHTML = `
-                        <span>📄</span><span style="font-weight:500;">${f.name}</span><span>${displaySize}</span><span>${date}</span><span class="ftp-hash">${f.hash}</span>
-                    `;
+                    row.dataset.fileId = f.id;
+                    row.dataset.filename = f.filename;
+                    row.onclick = function() { selectFtpRow(this, 'remote'); };
+                    row.innerHTML = `<span>📄</span><span style="font-weight:500;">${f.filename} <span style="font-size:10px;color:var(--primary);">(${f.sharedBy})</span></span><span>${size}</span><span>${date}</span><span class="ftp-hash">${hash.substring(0,4)}</span>`;
                     container.appendChild(row);
                 });
             } catch(e) {
-                console.error("FTP fetch failed", e);
+                console.error('Uzak liste yüklenemedi', e);
             }
         }
 
         // --- FTP İŞLEMLERİ ---
+        window._ftpMode = 'binary';
+
         function setMode(btn) {
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            const label = btn.getAttribute('data-i18n');
+            window._ftpMode = (label === 'mode_binary') ? 'binary' : 'ascii';
+            showToast(currentLang === 'tr'
+                ? `Aktarım modu: ${window._ftpMode === 'binary' ? 'İkili (Binary)' : 'Metin (ASCII)'}`
+                : `Transfer mode: ${window._ftpMode === 'binary' ? 'Binary' : 'ASCII'}`);
         }
 
+        function selectFtpRow(row, panel) {
+            const siblings = row.parentElement.querySelectorAll('.ftp-row:not(.header)');
+            siblings.forEach(r => r.classList.remove('selected'));
+            row.classList.add('selected');
+            row.dataset.panel = panel || '';
+        }
+
+        function ftpPut() {
+            const sel = document.querySelector('#localFtpList .ftp-row.selected');
+            if (!sel) { showToast(currentLang === 'tr' ? 'Lütfen göndermek için bir dosya seçin.' : 'Please select a file to upload.', true); return; }
+            showToast(currentLang === 'tr' ? `"${sel.querySelector('span:nth-child(2)').innerText}" sunucuya gönderildi. [${window._ftpMode.toUpperCase()}]` : `"${sel.querySelector('span:nth-child(2)').innerText}" sent to server. [${window._ftpMode.toUpperCase()}]`);
+        }
+
+        function ftpGet() {
+            const sel = document.querySelector('#remoteFtpList .ftp-row.selected');
+            if (!sel) { showToast(currentLang === 'tr' ? 'Lütfen indirmek için bir dosya seçin.' : 'Please select a file to download.', true); return; }
+            showToast(currentLang === 'tr' ? `"${sel.dataset.filename || sel.querySelector('span:nth-child(2)').innerText}" yerel diske indirildi. [${window._ftpMode.toUpperCase()}]` : `"${sel.dataset.filename || sel.querySelector('span:nth-child(2)').innerText}" downloaded. [${window._ftpMode.toUpperCase()}]`);
+        }
+
+        function ftpDeleteLocal() {
+            const sel = document.querySelector('#localFtpList .ftp-row.selected');
+            if (!sel) { showToast(currentLang === 'tr' ? 'Lütfen silinecek bir dosya seçin.' : 'Please select a file to delete.', true); return; }
+            if (!confirm(currentLang === 'tr' ? 'Seçili dosyayı silmek istiyor musunuz?' : 'Delete selected file?')) return;
+            const fileId = sel.dataset.fileId;
+            if (fileId) {
+                fetch('http://localhost:3000/api/files/' + fileId + '?username=' + encodeURIComponent(getUser()), { method: 'DELETE' })
+                    .then(() => { fetchFtpLocal(); fetchDashboard(); fetchFiles(); })
+                    .catch(e => console.error(e));
+            }
+            sel.remove();
+            showToast(currentLang === 'tr' ? 'Dosya silindi.' : 'File deleted.');
+        }
+
+        function ftpDeleteRemote() {
+            const sel = document.querySelector('#remoteFtpList .ftp-row.selected');
+            if (!sel) { showToast(currentLang === 'tr' ? 'Lütfen silinecek bir dosya seçin.' : 'Please select a file to delete.', true); return; }
+            sel.remove();
+            showToast(currentLang === 'tr' ? 'Paylaşım listesinden kaldırıldı.' : 'Removed from shared list.');
+        }
+        
         // --- YÜKLEME ---
-        function startUpload() {
+        async function startUpload() {
             const fileInput = document.getElementById('fileUploader');
             if (fileInput.files.length === 0) {
-                alert(currentLang === 'tr' ? 'Lütfen önce bir dosya seçin.' : 'Please select a file first.');
+                showToast(currentLang === 'tr' ? 'Lütfen önce bir dosya seçin.' : 'Please select a file first.', true);
                 return;
             }
             
@@ -1145,14 +1275,15 @@
                 statusText.innerText = currentLang === 'tr' ? translations.tr.status_done : translations.en.status_done;
                 
                 setTimeout(() => {
-                    alert(currentLang === 'tr' ? 'Dosyanız başarıyla şifrelendi ve sunucuya yüklendi!' : 'Your file has been successfully encrypted and uploaded to the server!');
+                    showToast(currentLang === 'tr' ? 'Dosyanız başarıyla şifrelendi ve sunucuya yüklendi!' : 'Your file has been successfully encrypted and uploaded to the server!');
                     fileInput.value = '';
                     document.getElementById('selectedFileName').innerText = currentLang === 'tr' ? 'Dosya seçilmedi' : 'No file chosen';
                     progressContainer.style.display = 'none';
                     fetchFiles();
+                    fetchDashboard();
                 }, 500);
             }).catch(err => {
-                alert("Yükleme hatası!");
+                showToast("Yükleme hatası!", true);
                 progressContainer.style.display = 'none';
             });
         }
@@ -1164,35 +1295,89 @@
         }
 
         function addFtpLog(msg, type, action) {
-            // Log paneli kaldırıldığı için mesajları kullanıcıya pop-up olarak göster
             if (action !== 'delete') {
-                alert(msg);
+                showToast(msg, type === 'error');
             }
             
             if (action === 'delete') {
                 const selectedRows = document.querySelectorAll('.ftp-row.selected');
                 if (selectedRows.length === 0) {
-                    alert(currentLang === 'tr' ? 'Lütfen silinecek bir dosya seçin.' : 'Please select a file to delete.');
+                    showToast(currentLang === 'tr' ? 'Lütfen silinecek bir dosya seçin.' : 'Please select a file to delete.', true);
                 } else {
                     selectedRows.forEach(row => row.remove());
-                    alert(msg);
+                    showToast(msg);
                 }
             }
         }
 
+        // --- YARDIMCI ---
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+            return (bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+        }
+
+        // --- DASHBOARD ---
+        async function fetchDashboard() {
+            const user = getUser();
+            if (!user) return;
+            try {
+                const res = await fetch('http://localhost:3000/api/dashboard?username=' + encodeURIComponent(user));
+                const d = await res.json();
+
+                const el = id => document.getElementById(id);
+                if (el('statTotalFiles')) el('statTotalFiles').innerText = d.totalFiles;
+                if (el('statTotalSpace')) el('statTotalSpace').innerText = formatSize(d.totalSize);
+                if (el('statActiveShares')) el('statActiveShares').innerText = d.activeShares;
+
+                const tbody = el('recentActivitiesBody');
+                if (tbody) {
+                    if (d.recentFiles.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:24px; color:var(--text-muted);">${currentLang === 'tr' ? 'Henüz dosya yüklenmedi.' : 'No files uploaded yet.'}</td></tr>`;
+                    } else {
+                        tbody.innerHTML = '';
+                        d.recentFiles.forEach(f => {
+                            const size = formatSize(f.size);
+                            const date = new Date(f.date).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td><div class="file-name-cell"><span class="file-icon">📄</span> ${f.filename}</div></td>
+                                <td>${date}</td>
+                                <td>${size}</td>
+                                <td><span style="color:var(--primary); font-weight:600; background:var(--primary-alpha); padding:4px 8px; border-radius:4px; font-size:12px;">${currentLang === 'tr' ? 'Başarılı' : 'Success'}</span></td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                }
+
+                initChart(d.breakdown, d.totalSize);
+            } catch(err) {
+                console.error('Dashboard yüklenemedi', err);
+            }
+        }
+
         // --- CHART.JS ---
-        function initChart() {
+        function initChart(breakdown, totalSize) {
             const ctx = document.getElementById('storageChart');
-            if(!ctx) return;
-            
-            if(window.myChart) { window.myChart.destroy(); }
-            
+            if (!ctx) return;
+            if (window.myChart) { window.myChart.destroy(); }
+
+            const hasData = totalSize && totalSize > 0;
+            const labels = currentLang === 'tr'
+                ? ['Görseller', 'Belgeler', 'Arşivler', 'Diğer']
+                : ['Images', 'Documents', 'Archives', 'Other'];
+            const data = hasData && breakdown
+                ? [breakdown.images, breakdown.documents, breakdown.archives, breakdown.other]
+                : [1, 1, 1, 1];
+
             window.myChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: currentLang === 'tr' ? ['Görseller', 'Belgeler', 'Arşivler', 'Sistem'] : ['Images', 'Documents', 'Archives', 'System'],
+                    labels,
                     datasets: [{
-                        data: [40, 25, 20, 15],
+                        data,
                         backgroundColor: ['#2e7d32', '#4caf50', '#81c784', '#c8e6c9'],
                         borderWidth: 0,
                         hoverOffset: 4
@@ -1203,10 +1388,27 @@
                     maintainAspectRatio: false,
                     cutout: '75%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 12 } } }
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 12 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    if (!hasData) return ctx.label + ': 0 B';
+                                    return ctx.label + ': ' + formatSize(ctx.raw);
+                                }
+                            }
+                        }
                     }
                 }
             });
+        }
+
+        function updateChartLang(lang) {
+            if (window.myChart) {
+                window.myChart.data.labels = lang === 'tr'
+                    ? ['Görseller', 'Belgeler', 'Arşivler', 'Diğer']
+                    : ['Images', 'Documents', 'Archives', 'Other'];
+                window.myChart.update();
+            }
         }
     </script>
 </body>

@@ -4,8 +4,50 @@
       "username": "naz",
       "email": "naz@gmail.com",
       "password": "xiB9GeJ7nERNMqY"
+    },
+    {
+      "username": "yusuf",
+      "email": "yusuf@gmail.com",
+      "password": "yusuf"
+    },
+    {
+      "username": "zeynep",
+      "email": "zeynep@gmail.com",
+      "password": "zeynep"
     }
   ],
-  "files": [],
-  "shares": []
+  "files": [
+    {
+      "id": "1777142607626",
+      "filename": "WhatsApp Image 2026-01-15 at 18.38.11.jpeg",
+      "storedName": "1777142607622-938883349-WhatsApp Image 2026-01-15 at 18.38.11.jpeg",
+      "size": 103708,
+      "uploader": "naz",
+      "date": "2026-04-25T18:43:27.626Z"
+    },
+    {
+      "id": "1777143247789",
+      "filename": "logo.png",
+      "storedName": "1777143247783-549676419-logo.png",
+      "size": 645114,
+      "uploader": "yusuf",
+      "date": "2026-04-25T18:54:07.789Z"
+    }
+  ],
+  "shares": [
+    {
+      "id": "1777143218049",
+      "fileId": "1777142607626",
+      "users": "yusuf",
+      "expiration": "2026-11-11 11:11",
+      "limit": "1"
+    },
+    {
+      "id": "1777143258589",
+      "fileId": "1777143247789",
+      "users": "zeynep",
+      "expiration": "2026-11-11 11:11",
+      "limit": "1"
+    }
+  ]
 }

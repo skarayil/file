@@ -1,3 +1,7 @@
+/**
+ * Copyright © 2026 Sude Naz Karayıldırım. All rights reserved.
+ * This backend server is part of the FileValley project, designed and developed by Sude Naz Karayıldırım.
+ */
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -91,14 +95,33 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 });
 
 app.get('/api/files', (req, res) => {
-    // Return all files (or we could filter by uploader)
-    res.json(db.files);
+    const username = req.query.username;
+    if (!username) return res.json([]);
+
+    const ownFiles = db.files.filter(f => f.uploader === username);
+
+    const sharedFileIds = db.shares
+        .filter(s => {
+            const users = s.users.split(',').map(u => u.trim());
+            return users.includes(username);
+        })
+        .map(s => s.fileId);
+
+    const sharedFiles = db.files
+        .filter(f => sharedFileIds.includes(f.id) && f.uploader !== username)
+        .map(f => ({ ...f, isShared: true, sharedBy: f.uploader }));
+
+    res.json([...ownFiles, ...sharedFiles]);
 });
 
 app.delete('/api/files/:id', (req, res) => {
+    const username = req.query.username;
     const fileIndex = db.files.findIndex(f => f.id === req.params.id);
     if (fileIndex !== -1) {
         const file = db.files[fileIndex];
+        if (username && file.uploader !== username) {
+            return res.status(403).json({ error: "Bu dosya size ait değil." });
+        }
         try {
             fs.unlinkSync(path.join(uploadDir, file.storedName));
         } catch (e) {
@@ -112,6 +135,40 @@ app.delete('/api/files/:id', (req, res) => {
     }
 });
 
+// --- DASHBOARD API ---
+app.get('/api/dashboard', (req, res) => {
+    const username = req.query.username;
+    if (!username) return res.status(400).json({ error: 'Username required' });
+
+    const userFiles = db.files.filter(f => f.uploader === username);
+    const totalFiles = userFiles.length;
+    const totalSize = userFiles.reduce((sum, f) => sum + f.size, 0);
+
+    const activeShares = db.shares.filter(s => {
+        const file = db.files.find(f => f.id === s.fileId && f.uploader === username);
+        return !!file;
+    }).length;
+
+    const recentFiles = [...userFiles]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+    const imageExts = ['jpg','jpeg','png','gif','svg','webp','bmp','ico'];
+    const docExts = ['pdf','doc','docx','txt','xls','xlsx','ppt','pptx','csv'];
+    const archExts = ['zip','rar','tar','gz','7z','bz2'];
+
+    const breakdown = { images: 0, documents: 0, archives: 0, other: 0 };
+    userFiles.forEach(f => {
+        const ext = f.filename.split('.').pop().toLowerCase();
+        if (imageExts.includes(ext)) breakdown.images += f.size;
+        else if (docExts.includes(ext)) breakdown.documents += f.size;
+        else if (archExts.includes(ext)) breakdown.archives += f.size;
+        else breakdown.other += f.size;
+    });
+
+    res.json({ totalFiles, totalSize, activeShares, recentFiles, breakdown });
+});
+
 // --- PAYLAŞIM API ---
 app.post('/api/share', (req, res) => {
     const { fileId, users, date, time, limit } = req.body;
@@ -123,8 +180,9 @@ app.post('/api/share', (req, res) => {
 
 // --- FTP MOCK API ---
 app.get('/api/ftp/remote', (req, res) => {
-    // Just return uploaded files as remote for realistic feeling
-    const files = db.files.map(f => ({
+    const username = req.query.username;
+    const userFiles = username ? db.files.filter(f => f.uploader === username) : [];
+    const files = userFiles.map(f => ({
         name: f.filename,
         size: f.size,
         date: f.date,
