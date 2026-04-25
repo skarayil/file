@@ -1,223 +1,1213 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FileValley — Dashboard</title>
-<meta name="description" content="Secure Web-FTP Storage — Şifreli dosya transferi, VFS klasör yönetimi ve audit log.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="src/styles/app-layout.css">
-<script type="module" src="src/core/i18n.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileValley — Güvenli Dosya Platformu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            /* Renk Paleti - Zengin Yeşil Tema */
+            --bg-color: #eef5e8;
+            --surface: #ffffff;
+            --surface-hover: #f3fcf4; 
+            --border-color: #d1e8d5;
+            --border-light: #e2f0e5;
+            
+            --primary: #2e7d32;
+            --primary-hover: #1b5e20;
+            --primary-light: #4caf50;
+            --primary-alpha: rgba(46, 125, 50, 0.1);
+            
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-light: #6b7280;
+            
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+            --danger-hover: #dc2626;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+
+            --sidebar-width: 280px;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans); background-color: var(--bg-color); color: var(--text-main);
+            line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; overflow-x: hidden;
+        }
+
+        /* --- ORTAK BİLEŞENLER --- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 18px; border-radius: var(--radius-md); font-weight: 500; font-size: 14px;
+            cursor: pointer; transition: var(--transition); border: 1px solid transparent; outline: none;
+            white-space: nowrap;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-sm); }
+        .btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border-color: var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary-alpha); }
+        .btn-danger { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
+        .btn-danger:hover { background: #fee2e2; color: var(--danger-hover); border-color: #fca5a5; }
+        .btn-gray { background: #f9fafb; border-color: #e5e7eb; color: var(--text-muted); }
+        .btn-gray:hover { background: #f3f4f6; color: var(--text-main); }
+
+        .card { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); transition: var(--transition); }
+        .card:hover { box-shadow: var(--shadow-lg); }
+
+        /* --- GİRİŞ EKRANI (LOGIN) --- */
+        #loginScreen { position: fixed; inset: 0; background: linear-gradient(135deg, #eef5e8 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+        .login-wrapper { width: 100%; max-width: 420px; background: var(--surface); padding: 48px 40px; border-radius: var(--radius-xl); box-shadow: 0 20px 40px rgba(46, 125, 50, 0.15); border: 1px solid var(--border-color); text-align: center; animation: slideUp 0.6s ease-out; position: relative; overflow: hidden; }
+        .login-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--primary); }
+        .login-logo { width: 72px; height: 72px; background: var(--primary); color: white; border-radius: var(--radius-lg); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 8px 16px rgba(46, 125, 50, 0.2); }
+        .login-wrapper h2 { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 8px; letter-spacing: -0.5px; }
+        .login-wrapper p { color: var(--primary-hover); font-size: 15px; margin-bottom: 32px; font-weight: 500; opacity: 0.85; }
+        
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--primary-hover); margin-bottom: 8px; }
+        .input-group input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); font-size: 15px; transition: var(--transition); background: #f3fcf4; font-family: var(--font-sans); color: var(--primary-hover); font-weight: 500; }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-alpha); outline: none; background: #ffffff; }
+        .input-group input::placeholder { color: #a5d6a7; }
+
+        .btn-login { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; margin-top: 10px; border-radius: var(--radius-md); background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2); transition: var(--transition); cursor: pointer; }
+        .btn-login:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(46, 125, 50, 0.3); }
+        #loginError { color: var(--danger); background: var(--danger-bg); padding: 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; margin-top: 20px; display: none; border: 1px solid var(--danger-border); }
+        
+        .login-links { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; font-weight: 500; }
+        .login-links a { color: var(--primary); text-decoration: none; transition: var(--transition); }
+        .login-links a:hover { color: var(--primary-hover); text-decoration: underline; }
+        .register-text { color: var(--primary-hover); margin-top: 4px; font-size: 14px; opacity: 0.85; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- ANA PANEL (APP SHELL) --- */
+        #appShell { display: none; min-height: 100vh; }
+        
+        /* SIDEBAR */
+        .sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 100; transition: var(--transition); }
+        .sidebar-header { padding: 32px 24px; display: flex; align-items: center; gap: 12px; }
+        .sidebar-header .logo-icon { width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .sidebar-header h1 { font-size: 20px; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px; }
+        
+        .sidebar-nav { padding: 0 16px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); color: var(--text-muted); font-weight: 500; cursor: pointer; transition: var(--transition); font-size: 14.5px; }
+        .nav-item:hover { background: var(--surface-hover); color: var(--primary); }
+        .nav-item.active { background: var(--primary-alpha); color: var(--primary); font-weight: 600; }
+        
+        /* LANG TOGGLE */
+        .lang-switch { display: flex; background: #f3f4f6; padding: 4px; border-radius: var(--radius-sm); margin: 0 24px 16px 24px; }
+        .lang-btn { flex: 1; padding: 6px 0; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); border: none; background: transparent; color: var(--text-muted); }
+        .lang-btn.active { background: white; color: var(--primary); box-shadow: var(--shadow-sm); }
+
+        .sidebar-footer { padding: 24px; border-top: 1px solid var(--border-light); margin-top: auto; }
+        .user-profile { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; }
+        .user-info-text { display: flex; flex-direction: column; }
+        .user-name { font-weight: 600; font-size: 14px; color: var(--text-main); }
+        .user-role { font-size: 12px; color: var(--text-light); }
+        .btn-logout { width: 100%; justify-content: flex-start; padding: 12px 16px; }
+
+        /* MAIN CONTENT */
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px 48px; max-width: 1400px; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+        .page-title h2 { font-size: 32px; font-weight: 700; color: var(--text-main); letter-spacing: -1px; margin-bottom: 4px; }
+        .page-title p { color: var(--text-muted); font-size: 15px; }
+
+        /* ── GÖSTERGE PANELİ (DASHBOARD) ── */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: var(--surface); padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); display: flex; align-items: flex-start; justify-content: space-between; }
+        .stat-info { display: flex; flex-direction: column; gap: 6px; }
+        .stat-label { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+        .stat-value { font-size: 32px; font-weight: 700; color: var(--primary); line-height: 1; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--primary-alpha); color: var(--primary); display: flex; align-items: center; justify-content: center; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        
+        .table-responsive { overflow-x: auto; width: 100%; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .data-table th { padding: 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; border-bottom: 2px solid var(--border-light); letter-spacing: 0.5px; }
+        .data-table td { padding: 16px; border-bottom: 1px solid var(--border-light); color: var(--text-main); font-size: 14px; vertical-align: middle; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: var(--surface-hover); }
+        
+        .file-name-cell { display: flex; align-items: center; gap: 12px; font-weight: 500; }
+        .file-icon { font-size: 20px; }
+
+        /* ── DOSYALARIM ── */
+        .controls-bar { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 16px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+        .group-control { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .group-control input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+        .group-control span { font-weight: 500; color: var(--text-main); font-size: 14px; }
+
+        /* ── DOSYA YÜKLEME ── */
+        .upload-container { background: var(--surface); border-radius: var(--radius-xl); padding: 48px; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
+        .drop-zone { border: 2px dashed var(--primary); border-radius: var(--radius-lg); padding: 64px 32px; text-align: center; background: var(--surface-hover); transition: var(--transition); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+        .drop-zone:hover { background: #e8f5e9; border-color: var(--primary-hover); transform: scale(1.01); }
+        .drop-icon { width: 64px; height: 64px; color: var(--primary); background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); }
+        .drop-title { font-size: 20px; font-weight: 600; color: var(--text-main); }
+        .drop-desc { color: var(--text-muted); font-size: 14px; }
+        
+        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
+        .file-input-wrapper input[type="file"] { position: absolute; font-size: 100px; opacity: 0; right: 0; top: 0; cursor: pointer; }
+        
+        .upload-actions { display: flex; justify-content: center; gap: 16px; margin-top: 32px; }
+        #selectedFileName { margin-top: 16px; font-size: 15px; font-weight: 600; color: var(--primary); text-align: center; min-height: 22px; }
+        
+        .queue-box { margin-top: 32px; background: #f9fafb; border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 32px; text-align: center; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+
+        /* ── S-FTP İSTEMCİSİ YENİ TASARIM ── */
+        .sftp-layout { display: flex; flex-direction: column; gap: 24px; }
+        .conn-card { background: var(--surface); padding: 20px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; box-shadow: var(--shadow-sm); }
+        .conn-details { display: flex; gap: 32px; flex-wrap: wrap; }
+        .conn-item { display: flex; flex-direction: column; gap: 4px; }
+        .conn-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .conn-value { font-size: 14px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .conn-status-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 8px var(--primary); }
+
+        .mode-selector { display: flex; background: #f3f4f6; padding: 4px; border-radius: 8px; }
+        .mode-btn { padding: 6px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; background: transparent; color: var(--text-muted); }
+        .mode-btn.active { background: white; color: var(--primary); box-shadow: var(--shadow-sm); }
+
+        .ftp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .ftp-panel { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 500px; }
+        .ftp-header { padding: 16px; background: var(--surface-hover); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+        .ftp-title { font-weight: 700; color: var(--primary); font-size: 14px; }
+        .ftp-path { background: white; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+        
+        .ftp-list { flex: 1; overflow-y: auto; overflow-x: auto; }
+        .ftp-row { display: grid; grid-template-columns: 36px minmax(150px, 1fr) 80px 100px 80px; padding: 12px 16px; border-bottom: 1px solid #f3f4f6; align-items: center; font-size: 13px; cursor: pointer; min-width: 500px; transition: background 0.2s; }
+        .ftp-row:hover { background: #f9fafb; }
+        .ftp-row.header { background: #f9fafb; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 11px; position: sticky; top: 0; z-index: 10; cursor: default; }
+        .ftp-row.selected { background: var(--surface-hover); border-left: 3px solid var(--primary); padding-left: 13px; }
+        .ftp-hash { font-family: var(--font-mono); font-size: 11px; color: #9ca3af; }
+
+        .ftp-actions { padding: 16px; background: white; border-top: 1px solid var(--border-light); display: flex; gap: 12px; }
+        .ftp-actions .btn { flex: 1; }
+
+        .log-panel { background: #1e293b; border-radius: var(--radius-lg); overflow: hidden; margin-top: 24px; box-shadow: var(--shadow-md); }
+        .log-header { background: #0f172a; color: #94a3b8; padding: 12px 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; }
+        .log-content { height: 140px; overflow-y: auto; padding: 16px 20px; font-family: var(--font-mono); font-size: 13px; color: #cbd5e1; }
+        .log-line { margin-bottom: 6px; }
+        .log-time { color: #64748b; margin-right: 8px; }
+        .log-success { color: #34d399; }
+        .log-error { color: #f87171; }
+
+        /* ── PAYLAŞIM MODALI ── */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+        .modal-card { background: var(--surface); width: 100%; max-width: 460px; border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-lg); animation: slideUp 0.3s ease-out; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border-light); padding-bottom: 16px; }
+        .modal-title { font-size: 20px; font-weight: 700; color: var(--primary); }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+        .modal-footer { display: flex; gap: 12px; margin-top: 32px; }
+        .modal-footer .btn { flex: 1; padding: 12px; }
+
+        /* ── RESPONSIVE YAPI ── */
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .ftp-grid { grid-template-columns: 1fr; height: auto; }
+            .ftp-panel { height: 400px; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; padding: 24px 20px; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .conn-card { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="app-shell">
+    <!-- 1. GİRİŞ EKRANI -->
+    <div id="loginScreen">
+        <div class="login-wrapper" id="loginWrapper">
+            <div class="login-logo">
+                <img src="img/logo.png" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;">
+            </div>
+            <h2 data-i18n="app_title">FileValley</h2>
+            <p data-i18n="login_subtitle">Güvenli yönetim paneline giriş yapın</p>
+            
+            <div class="input-group">
+                <label data-i18n="username">Kullanıcı Adı</label>
+                <input type="text" id="username" placeholder="Örn: admin" value="admin">
+            </div>
+            <div class="input-group">
+                <label data-i18n="password">Şifre</label>
+                <input type="password" id="password" placeholder="••••••••" value="1234">
+            </div>
+            
+            <button class="btn btn-primary btn-login" onclick="login()" data-i18n="login_btn">Giriş Yap</button>
+            <div id="loginError" data-i18n="login_error">Lütfen bilgilerinizi kontrol ediniz.</div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-box">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      </div>
-      <h1>FileValley</h1>
+            <div class="login-links">
+                <a href="#" onclick="forgotPassword(); return false;" data-i18n="forgot_password">Şifremi Unuttum</a>
+                <div class="register-text">
+                    <span data-i18n="no_account">Hesabınız yok mu?</span>
+                    <a href="#" onclick="register(); return false;" data-i18n="register" style="font-weight: 700; margin-left: 4px;">Kayıt Ol</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- KAYIT EKRANI -->
+        <div class="login-wrapper" id="registerWrapper" style="display: none;">
+            <div class="login-logo">
+                <img src="img/logo.png" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;">
+            </div>
+            <h2 data-i18n="register_title">Hesap Oluştur</h2>
+            <p data-i18n="register_subtitle">Lütfen bilgilerinizi girin</p>
+            
+            <div class="input-group">
+                <label data-i18n="username">Kullanıcı Adı</label>
+                <input type="text" id="regUsername" placeholder="Örn: yenikullanici">
+            </div>
+            <div class="input-group">
+                <label data-i18n="email">E-posta Adresi</label>
+                <input type="email" id="regEmail" placeholder="ornek@sirket.com">
+            </div>
+            <div class="input-group">
+                <label data-i18n="password">Şifre</label>
+                <input type="password" id="regPassword" placeholder="••••••••">
+            </div>
+            
+            <button class="btn btn-primary btn-login" onclick="performRegister()" data-i18n="register_btn">Kayıt Ol</button>
+            <div id="registerError" style="color: var(--danger); background: var(--danger-bg); padding: 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; margin-top: 20px; display: none; border: 1px solid var(--danger-border);" data-i18n="register_error">Lütfen tüm alanları doldurun.</div>
+
+            <div class="login-links">
+                <div class="register-text">
+                    <span data-i18n="have_account">Zaten hesabınız var mı?</span>
+                    <a href="#" onclick="showLogin(); return false;" data-i18n="login_btn" style="font-weight: 700; margin-left: 4px;">Giriş Yap</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ŞİFRE SIFIRLAMA EKRANI -->
+        <div class="login-wrapper" id="forgotWrapper" style="display: none;">
+            <div class="login-logo">
+                <img src="img/logo.png" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;">
+            </div>
+            <h2 data-i18n="forgot_title">Şifre Sıfırlama</h2>
+            <p data-i18n="forgot_subtitle">E-posta adresinizi girin, sıfırlama bağlantısı gönderelim.</p>
+            
+            <div class="input-group">
+                <label data-i18n="email">E-posta Adresi</label>
+                <input type="email" id="forgotEmail" placeholder="ornek@sirket.com">
+            </div>
+            
+            <button class="btn btn-primary btn-login" onclick="performReset()" data-i18n="send_link">Sıfırlama Bağlantısı Gönder</button>
+            
+            <div class="login-links" style="margin-top: 24px;">
+                <a href="#" onclick="showLogin(); return false;" data-i18n="back_to_login">Giriş Ekranına Dön</a>
+            </div>
+        </div>
     </div>
 
-    <nav class="sidebar-nav">
-      <a href="index.html" class="active">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>Dashboard</span>
-      </a>
-      <a href="files.html">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        <span>Dosyalarım</span>
-      </a>
-      <a href="shared.html">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        <span>Paylaşılanlar</span>
-      </a>
-      <a href="upload.html">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <span>Dosya Yükle</span>
-      </a>
-      <a href="sftp.html">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        <span>S-FTP Client</span>
-      </a>
-    </nav>
+    <!-- 2. ANA UYGULAMA (APP SHELL) -->
+    <div id="appShell">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon" style="background: transparent; padding: 0;">
+                    <img src="img/logo.png" alt="Logo" style="width: 28px; height: 28px; object-fit: contain;">
+                </div>
+                <h1 data-i18n="app_title">FileValley</h1>
+            </div>
 
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar" id="userAvatar">U</div>
-        <div class="user-details">
-          <div class="user-name" id="userName">Kullanıcı</div>
-        </div>
-      </div>
-      <div class="btn-logout-icon" id="logout" title="Çıkış Yap">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active" onclick="navigate('dashboard', this)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span data-i18n="nav_dashboard">Gösterge Paneli</span>
+                </div>
+                <div class="nav-item" onclick="navigate('files', this)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    <span data-i18n="nav_files">Dosyalarım</span>
+                </div>
+                <div class="nav-item" onclick="navigate('upload', this)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span data-i18n="nav_upload">Dosya Yükle</span>
+                </div>
+                <div class="nav-item" onclick="navigate('sftp', this)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 20 12 16 8"/><line x1="14" y1="20" x2="10" y2="4"/><polyline points="8 8 4 12 8 16"/></svg>
+                    <span data-i18n="nav_ftp">FTP İstemcisi</span>
+                </div>
+            </nav>
+
+            <!-- Language Switcher -->
+            <div class="lang-switch">
+                <button class="lang-btn active" id="btn-tr" onclick="setLang('tr')">TR</button>
+                <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">A</div>
+                    <div class="user-info-text">
+                        <span class="user-name" id="displayUsername">Admin User</span>
+                        <span class="user-role" data-i18n="sys_admin">Sistem Yöneticisi</span>
+                    </div>
+                </div>
+                <button class="btn btn-outline btn-logout" onclick="logout()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span data-i18n="logout">Çıkış Yap</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- İÇERİK ALANI -->
+        <main class="main-content">
+
+            <!-- SAYFA: GÖSTERGE PANELİ -->
+            <div id="page-dashboard" class="page-view">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h2 data-i18n="nav_dashboard">Gösterge Paneli</h2>
+                        <p data-i18n="dash_desc">Sistem durumunu ve özet bilgileri görüntüleyin.</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label" data-i18n="stat_files">Toplam Dosya</span>
+                            <span class="stat-value">1,248</span>
+                        </div>
+                        <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label" data-i18n="stat_space">Kullanılan Alan</span>
+                            <span class="stat-value">45.2 GB</span>
+                        </div>
+                        <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label" data-i18n="stat_shares">Aktif Paylaşımlar</span>
+                            <span class="stat-value">34</span>
+                        </div>
+                        <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 20px; font-size: 18px; color: var(--text-main);" data-i18n="recent_activities">Son Aktiviteler</h3>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="th_filename">Dosya Adı</th>
+                                        <th data-i18n="th_date">Tarih</th>
+                                        <th data-i18n="th_size">Boyut</th>
+                                        <th data-i18n="th_status">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><div class="file-name-cell"><span class="file-icon">📄</span> Finans_Raporu_Q3.pdf</div></td>
+                                        <td>Bugün, 14:30</td>
+                                        <td>2.4 MB</td>
+                                        <td><span style="color:var(--primary); font-weight:600; background:var(--primary-alpha); padding:4px 8px; border-radius:4px; font-size:12px;" data-i18n="success">Başarılı</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><div class="file-name-cell"><span class="file-icon">📦</span> Yedek_Sistem_Tam.zip</div></td>
+                                        <td>Dün, 09:15</td>
+                                        <td>1.2 GB</td>
+                                        <td><span style="color:var(--primary); font-weight:600; background:var(--primary-alpha); padding:4px 8px; border-radius:4px; font-size:12px;" data-i18n="success">Başarılı</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 style="margin-bottom: 20px; font-size: 18px; color: var(--text-main);" data-i18n="storage_dist">Depolama Dağılımı</h3>
+                        <div style="height: 250px; position: relative;">
+                            <canvas id="storageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAYFA: DOSYALARIM -->
+            <div id="page-files" class="page-view" style="display:none;">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h2 data-i18n="nav_files">Dosyalarım</h2>
+                        <p data-i18n="files_desc">Tüm yüklü dosyalarınızı yönetin ve paylaşın.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="navigate('upload', document.querySelectorAll('.nav-item')[2])">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span data-i18n="upload_new">Yeni Yükle</span>
+                    </button>
+                </div>
+
+                <div class="controls-bar">
+                    <label class="group-control">
+                        <input type="checkbox">
+                        <span data-i18n="group_by_type">Dosyaları Türüne Göre Grupla</span>
+                    </label>
+                    <div class="input-group" style="margin:0; width: 300px;">
+                        <input type="text" id="searchInput" placeholder="Dosya ara..." style="padding: 10px 16px;">
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead style="background: var(--surface-hover);">
+                                <tr>
+                                    <th data-i18n="th_filename">Dosya Adı</th>
+                                    <th data-i18n="th_type">Tür</th>
+                                    <th data-i18n="th_size">Boyut</th>
+                                    <th data-i18n="th_uploaddate">Yüklenme Tarihi</th>
+                                    <th style="text-align: right;" data-i18n="th_actions">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><div class="file-name-cell"><span class="file-icon">🖼️</span> Tasarim_V1_Final.png</div></td>
+                                    <td data-i18n="type_image">Görsel</td>
+                                    <td>4.2 MB</td>
+                                    <td>15 Nisan 2024</td>
+                                    <td style="text-align: right; display:flex; gap:8px; justify-content: flex-end;">
+                                        <button class="btn btn-outline" style="padding: 6px 12px;" onclick="openShareModal()" data-i18n="btn_share">Paylaş</button>
+                                        <button class="btn btn-danger" style="padding: 6px 12px;" data-i18n="btn_delete">Sil</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><div class="file-name-cell"><span class="file-icon">📊</span> Satis_Verileri.xlsx</div></td>
+                                    <td data-i18n="type_spreadsheet">Tablo</td>
+                                    <td>850 KB</td>
+                                    <td>12 Nisan 2024</td>
+                                    <td style="text-align: right; display:flex; gap:8px; justify-content: flex-end;">
+                                        <button class="btn btn-outline" style="padding: 6px 12px;" onclick="openShareModal()" data-i18n="btn_share">Paylaş</button>
+                                        <button class="btn btn-danger" style="padding: 6px 12px;" data-i18n="btn_delete">Sil</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAYFA: DOSYA YÜKLE -->
+            <div id="page-upload" class="page-view" style="display:none;">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h2 data-i18n="nav_upload">Dosya Yükle</h2>
+                        <p data-i18n="upload_desc">Dosyalarınız yüklenmeden önce uçtan uca şifrelenir.</p>
+                    </div>
+                </div>
+
+                <div class="upload-container">
+                    <div class="drop-zone">
+                        <div class="drop-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <div>
+                            <div class="drop-title" data-i18n="drag_drop">Dosyaları buraya sürükleyin</div>
+                            <div class="drop-desc" data-i18n="or_browse">veya cihazınızdan seçmek için butonu kullanın</div>
+                        </div>
+                        
+                        <div class="upload-actions">
+                            <div class="file-input-wrapper">
+                                <button class="btn btn-primary" style="padding: 14px 28px; font-size: 15px;" data-i18n="choose_file">Dosya Seç</button>
+                                <input type="file" id="fileUploader" onchange="document.getElementById('selectedFileName').innerText = this.files.length > 0 ? this.files[0].name : (currentLang === 'tr' ? 'Dosya seçilmedi' : 'No file chosen')">
+                            </div>
+                            <button class="btn btn-primary" style="padding: 14px 28px; font-size: 15px;" onclick="startUpload()" data-i18n="upload_btn">Yükle ve Şifrele</button>
+                            <button class="btn btn-gray" style="padding: 14px 28px; font-size: 15px;" onclick="document.getElementById('fileUploader').value=''; document.getElementById('selectedFileName').innerText= (currentLang === 'tr' ? 'Dosya seçilmedi' : 'No file chosen'); document.getElementById('uploadProgress').style.display='none';" data-i18n="clear_btn">Temizle</button>
+                        </div>
+                        <div id="selectedFileName" style="margin-top: 16px; font-size: 15px; font-weight: 600; color: var(--primary); text-align: center; min-height: 22px;" data-i18n="no_file">Dosya seçilmedi</div>
+
+                        <div id="uploadProgress" style="display: none; margin-top: 24px; width: 100%; max-width: 480px; text-align: left; padding: 16px; background: #f9fafb; border: 1px dashed var(--border-color); border-radius: var(--radius-md);">
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--primary);">
+                                <span id="uploadStatusText">Şifreleniyor...</span>
+                                <span id="uploadPercentage">0%</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: var(--border-light); border-radius: 4px; overflow: hidden;">
+                                <div id="uploadProgressBar" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="queue-box" data-i18n="empty_queue">
+                        Kuyruk boş. Dosya yüklemek için yukarıdan dosya seçin.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAYFA: FTP İSTEMCİSİ -->
+            <div id="page-sftp" class="page-view" style="display:none;">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h2 data-i18n="nav_ftp">FTP İstemcisi</h2>
+                        <p data-i18n="ftp_desc">Sunucular arası güvenli dosya aktarımı.</p>
+                    </div>
+                </div>
+
+                <div class="sftp-layout">
+                    <!-- Bağlantı Bilgileri -->
+                    <div class="conn-card">
+                        <div class="conn-details">
+                            <div class="conn-item">
+                                <span class="conn-label" data-i18n="server_host">Sunucu (Host)</span>
+                                <span class="conn-value">ftp.dosyavadisi.com</span>
+                            </div>
+                            <div class="conn-item">
+                                <span class="conn-label" data-i18n="user">Kullanıcı</span>
+                                <span class="conn-value">admin_root</span>
+                            </div>
+                            <div class="conn-item">
+                                <span class="conn-label" data-i18n="conn_status">Bağlantı Durumu</span>
+                                <span class="conn-value" style="color: var(--primary);"><div class="conn-status-dot"></div> <span data-i18n="active">AKTİF</span></span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="conn-label" style="margin: 0;" data-i18n="transfer_mode">Aktarım Modu:</span>
+                            <div class="mode-selector">
+                                <button class="mode-btn active" onclick="setMode(this)" data-i18n="mode_binary">İkili (Binary)</button>
+                                <button class="mode-btn" onclick="setMode(this)" data-i18n="mode_ascii">Metin (ASCII)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paneller -->
+                    <div class="ftp-grid">
+                        
+                        <!-- Yerel Site -->
+                        <div class="ftp-panel">
+                            <div class="ftp-header">
+                                <span class="ftp-title" data-i18n="local_site">YEREL SİTE</span>
+                                <span class="ftp-path">C:\Kullanıcılar\Admin\Belgeler</span>
+                            </div>
+                            <div class="ftp-list">
+                                <div class="ftp-row header">
+                                    <span></span><span data-i18n="th_name">Ad</span><span data-i18n="th_size">Boyut</span><span data-i18n="th_date">Tarih</span><span>SHA-256</span>
+                                </div>
+                                <div class="ftp-row" onclick="selectFtpRow(this)">
+                                    <span>📄</span><span style="font-weight:500;">sunum_v2.pdf</span><span>3.4 MB</span><span>14.04.2024</span><span class="ftp-hash">b4a7</span>
+                                </div>
+                                <div class="ftp-row" onclick="selectFtpRow(this)">
+                                    <span>📁</span><span style="font-weight:500;">Projeler</span><span>--</span><span>12.04.2024</span><span class="ftp-hash">--</span>
+                                </div>
+                            </div>
+                            <div class="ftp-actions">
+                                <button class="btn btn-primary" onclick="addFtpLog(currentLang === 'tr' ? 'Dosya sunucuya yüklendi.' : 'File uploaded to server.', 'success', 'upload')" data-i18n="put_btn">↑ YÜKLE (PUT)</button>
+                                <button class="btn btn-danger" onclick="addFtpLog(currentLang === 'tr' ? 'Seçili yerel dosya silindi.' : 'Selected local file deleted.', 'error', 'delete')" data-i18n="del_btn">SİL (DEL)</button>
+                            </div>
+                        </div>
+
+                        <!-- Uzak Site -->
+                        <div class="ftp-panel">
+                            <div class="ftp-header">
+                                <span class="ftp-title" data-i18n="remote_site">UZAK SİTE</span>
+                                <span class="ftp-path">/var/www/html/uploads</span>
+                            </div>
+                            <div class="ftp-list" id="remoteFtpList">
+                                <div class="ftp-row header">
+                                    <span></span><span data-i18n="th_name">Ad</span><span data-i18n="th_size">Boyut</span><span data-i18n="th_date">Tarih</span><span>SHA-256</span>
+                                </div>
+                            </div>
+                            <div class="ftp-actions">
+                                <button class="btn btn-primary" onclick="addFtpLog(currentLang === 'tr' ? 'Dosya yerel diske indirildi.' : 'File downloaded to local disk.', 'success', 'download')" data-i18n="get_btn">↓ İNDİR (GET)</button>
+                                <button class="btn btn-danger" onclick="addFtpLog(currentLang === 'tr' ? 'Seçili uzak dosya silindi.' : 'Selected remote file deleted.', 'error', 'delete')" data-i18n="del_btn">SİL (DEL)</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- (Oturum günlüğü kaldırıldı) -->
+
+                </div>
+            </div>
+
+        </main>
     </div>
-  </aside>
 
-  <!-- MAIN -->
-  <main class="main-content">
+    <!-- PAYLAŞIM MODALI -->
+    <div id="shareModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title" data-i18n="share_title">Dosya Paylaş</h3>
+                <button class="modal-close" onclick="closeShareModal()">&times;</button>
+            </div>
+            
+            <div class="input-group">
+                <label data-i18n="share_users">Kullanıcı Adları (Virgülle ayırın)</label>
+                <input type="text" placeholder="Örn: ahmet, mehmet_can" id="shareUsers">
+            </div>
 
-    <!-- TOPBAR -->
-    <header class="page-header">
-      <div class="page-title-group">
-        <h2>Dashboard</h2>
-        <div class="page-subtitle" id="currentDate"></div>
-      </div>
-      <div class="topbar-right" style="display:flex; align-items:center; gap:16px;">
-        <div class="security-badge" style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--accent); background:rgba(16,185,129,0.1); padding:6px 12px; border-radius:20px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span>E2E Şifreli</span>
-        </div>
-        <a href="sftp.html" class="btn btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-          S-FTP Aç
-        </a>
-      </div>
-    </header>
+            <div class="input-group">
+                <label data-i18n="share_date">Son Kullanma Tarihi (İsteğe Bağlı)</label>
+                <div style="display: flex; gap: 12px;">
+                    <input type="date" id="shareDate" style="flex: 2;">
+                    <input type="time" id="shareTime" style="flex: 1;">
+                </div>
+            </div>
 
-    <!-- STAT CARDS -->
-    <section class="stats-grid" aria-label="İstatistikler">
-      <div class="stat-card">
-        <div class="stat-body">
-          <div class="stat-label">Toplam Dosya</div>
-          <div class="stat-value" id="totalFiles">0</div>
-        </div>
-        <div class="stat-icon stat-blue">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-body">
-          <div class="stat-label">Giden Paylaşım</div>
-          <div class="stat-value" id="sharedByMe">0</div>
-        </div>
-        <div class="stat-icon stat-green">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-body">
-          <div class="stat-label">Gelen Paylaşım</div>
-          <div class="stat-value" id="sharedWithMe">0</div>
-        </div>
-        <div class="stat-icon stat-purple">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 8 12 3 17 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-body">
-          <div class="stat-label">Son Aktivite</div>
-          <div class="stat-value stat-value-sm" id="lastActivity">—</div>
-        </div>
-        <div class="stat-icon stat-orange">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-      </div>
-    </section>
+            <div class="input-group">
+                <label data-i18n="share_limit">İndirme Limiti (-1 sınırsız)</label>
+                <input type="number" value="-1" id="shareLimit">
+            </div>
 
-    <!-- GRID: VFS TREE + TRANSFER QUEUE + CHART -->
-    <section class="content-grid">
-
-      <!-- VFS NAVIGATION TREE -->
-      <div class="content-card card-vfs">
-        <div class="card-header">
-          <h2 class="card-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            Sanal Dosya Sistemi
-          </h2>
-          <a href="sftp.html" class="card-action">Tam Ekran</a>
+            <div class="modal-footer">
+                <button class="btn btn-gray" onclick="closeShareModal()" data-i18n="btn_cancel">İptal</button>
+                <button class="btn btn-primary" onclick="submitShare()" data-i18n="btn_start_share">Paylaşımı Başlat</button>
+            </div>
         </div>
-        <div class="vfs-tree" id="vfsTree">
-          <div class="vfs-loading">
-            <div class="mini-spinner"></div>
-            <span>Yükleniyor...</span>
-          </div>
-        </div>
-      </div>
+    </div>
 
-      <!-- TRANSFER QUEUE -->
-      <div class="content-card card-queue">
-        <div class="card-header">
-          <h2 class="card-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            Transfer Kuyruğu
-          </h2>
-          <span class="queue-badge" id="queueBadge">0</span>
-        </div>
-        <div class="queue-list" id="queueList">
-          <div class="empty-state">Aktif transfer yok</div>
-        </div>
-      </div>
+    <script>
+        // --- ÇEVİRİ SİSTEMİ ---
+        const translations = {
+            tr: {
+                app_title: "FileValley",
+                login_subtitle: "Güvenli yönetim paneline giriş yapın",
+                username: "Kullanıcı Adı",
+                password: "Şifre",
+                login_btn: "Giriş Yap",
+                login_error: "Lütfen bilgilerinizi kontrol ediniz.",
+                forgot_password: "Şifremi Unuttum",
+                no_account: "Hesabınız yok mu?",
+                register: "Kayıt Ol",
+                register_title: "Hesap Oluştur",
+                register_subtitle: "Lütfen bilgilerinizi girin",
+                register_btn: "Kayıt Ol",
+                register_error: "Lütfen tüm alanları doldurun.",
+                have_account: "Zaten hesabınız var mı?",
+                forgot_title: "Şifre Sıfırlama",
+                forgot_subtitle: "E-posta adresinizi girin, sıfırlama bağlantısı gönderelim.",
+                email: "E-posta Adresi",
+                send_link: "Sıfırlama Bağlantısı Gönder",
+                back_to_login: "Giriş Ekranına Dön",
+                
+                nav_dashboard: "Gösterge Paneli",
+                nav_files: "Dosyalarım",
+                nav_upload: "Dosya Yükle",
+                nav_ftp: "FTP İstemcisi",
+                sys_admin: "Sistem Yöneticisi",
+                logout: "Çıkış Yap",
+                
+                dash_desc: "Sistem durumunu ve özet bilgileri görüntüleyin.",
+                stat_files: "Toplam Dosya",
+                stat_space: "Kullanılan Alan",
+                stat_shares: "Aktif Paylaşımlar",
+                recent_activities: "Son Aktiviteler",
+                storage_dist: "Depolama Dağılımı",
+                th_filename: "Dosya Adı",
+                th_date: "Tarih",
+                th_size: "Boyut",
+                th_status: "Durum",
+                success: "Başarılı",
+                
+                files_desc: "Tüm yüklü dosyalarınızı yönetin ve paylaşın.",
+                upload_new: "Yeni Yükle",
+                group_by_type: "Dosyaları Türüne Göre Grupla",
+                th_type: "Tür",
+                th_uploaddate: "Yüklenme Tarihi",
+                th_actions: "İşlemler",
+                type_image: "Görsel",
+                type_spreadsheet: "Tablo",
+                btn_share: "Paylaş",
+                btn_delete: "Sil",
+                
+                upload_desc: "Dosyalarınız yüklenmeden önce uçtan uca şifrelenir.",
+                drag_drop: "Dosyaları buraya sürükleyin",
+                or_browse: "veya cihazınızdan seçmek için butonu kullanın",
+                choose_file: "Dosya Seç",
+                upload_btn: "Yükle ve Şifrele",
+                clear_btn: "Temizle",
+                no_file: "Dosya seçilmedi",
+                empty_queue: "Kuyruk boş. Dosya yüklemek için yukarıdan dosya seçin.",
+                status_enc: "Şifreleniyor...",
+                status_up: "Sunucuya Yükleniyor...",
+                status_done: "Tamamlandı! Dosya paylaşıma hazır.",
+                
+                ftp_desc: "Sunucular arası güvenli dosya aktarımı.",
+                server_host: "Sunucu (Host)",
+                user: "Kullanıcı",
+                conn_status: "Bağlantı Durumu",
+                active: "AKTİF",
+                transfer_mode: "Aktarım Modu:",
+                mode_binary: "İkili (Binary)",
+                mode_ascii: "Metin (ASCII)",
+                local_site: "YEREL SİTE",
+                remote_site: "UZAK SİTE",
+                th_name: "Ad",
+                put_btn: "↑ YÜKLE (PUT)",
+                del_btn: "SİL (DEL)",
+                get_btn: "↓ İNDİR (GET)",
+                session_log: "OTURUM GÜNLÜĞÜ (SESSION LOG)",
+                log_conn: "Bağlantı kuruluyor: ftp.dosyavadisi.com:21...",
+                log_accept: "220 (vsFTPd 3.0.3) bağlantı kabul edildi.",
+                log_dir: "Dizin listesi başarıyla alındı.",
+                
+                share_title: "Dosya Paylaş",
+                share_users: "Kullanıcı Adları (Virgülle ayırın)",
+                share_date: "Son Kullanma Tarihi (İsteğe Bağlı)",
+                share_limit: "İndirme Limiti (-1 sınırsız)",
+                btn_cancel: "İptal",
+                btn_start_share: "Paylaşımı Başlat"
+            },
+            en: {
+                app_title: "FileValley",
+                login_subtitle: "Login to secure management panel",
+                username: "Username",
+                password: "Password",
+                login_btn: "Login",
+                login_error: "Please check your credentials.",
+                forgot_password: "Forgot Password?",
+                no_account: "Don't have an account?",
+                register: "Register",
+                register_title: "Create Account",
+                register_subtitle: "Please enter your details",
+                register_btn: "Register",
+                register_error: "Please fill all fields.",
+                have_account: "Already have an account?",
+                forgot_title: "Password Reset",
+                forgot_subtitle: "Enter your email, we'll send a reset link.",
+                email: "Email Address",
+                send_link: "Send Reset Link",
+                back_to_login: "Back to Login",
+                
+                nav_dashboard: "Dashboard",
+                nav_files: "My Files",
+                nav_upload: "Upload File",
+                nav_ftp: "FTP Client",
+                sys_admin: "System Administrator",
+                logout: "Logout",
+                
+                dash_desc: "View system status and summary information.",
+                stat_files: "Total Files",
+                stat_space: "Space Used",
+                stat_shares: "Active Shares",
+                recent_activities: "Recent Activities",
+                storage_dist: "Storage Distribution",
+                th_filename: "File Name",
+                th_date: "Date",
+                th_size: "Size",
+                th_status: "Status",
+                success: "Success",
+                
+                files_desc: "Manage and share all your uploaded files.",
+                upload_new: "Upload New",
+                group_by_type: "Group Files by Type",
+                th_type: "Type",
+                th_uploaddate: "Upload Date",
+                th_actions: "Actions",
+                type_image: "Image",
+                type_spreadsheet: "Spreadsheet",
+                btn_share: "Share",
+                btn_delete: "Delete",
+                
+                upload_desc: "Your files are end-to-end encrypted before upload.",
+                drag_drop: "Drag files here",
+                or_browse: "or use the button to select from your device",
+                choose_file: "Choose File",
+                upload_btn: "Upload & Encrypt",
+                clear_btn: "Clear",
+                no_file: "No file chosen",
+                empty_queue: "Queue is empty. Select a file above to upload.",
+                status_enc: "Encrypting...",
+                status_up: "Uploading to Server...",
+                status_done: "Completed! File ready to share.",
+                
+                ftp_desc: "Secure file transfer between servers.",
+                server_host: "Server (Host)",
+                user: "User",
+                conn_status: "Connection Status",
+                active: "ACTIVE",
+                transfer_mode: "Transfer Mode:",
+                mode_binary: "Binary",
+                mode_ascii: "ASCII",
+                local_site: "LOCAL SITE",
+                remote_site: "REMOTE SITE",
+                th_name: "Name",
+                put_btn: "↑ UPLOAD (PUT)",
+                del_btn: "DELETE (DEL)",
+                get_btn: "↓ DOWNLOAD (GET)",
+                session_log: "SESSION LOG",
+                log_conn: "Connecting to: ftp.dosyavadisi.com:21...",
+                log_accept: "220 (vsFTPd 3.0.3) connection accepted.",
+                log_dir: "Directory listing successful.",
+                
+                share_title: "Share File",
+                share_users: "Usernames (Comma separated)",
+                share_date: "Expiration Date (Optional)",
+                share_limit: "Download Limit (-1 unlimited)",
+                btn_cancel: "Cancel",
+                btn_start_share: "Start Sharing"
+            }
+        };
 
-      <!-- FILE TYPE CHART -->
-      <div class="content-card card-chart">
-        <div class="card-header">
-          <h2 class="card-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-            Dosya Dağılımı
-          </h2>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="fileTypeChart"></canvas>
-        </div>
-      </div>
+        let currentLang = 'tr';
 
-    </section>
+        function setLang(lang) {
+            currentLang = lang;
+            
+            // Butonları güncelle
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + lang).classList.add('active');
+            
+            // Tüm metinleri güncelle
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
 
-    <!-- AUDIT LOG + RECENT FILES -->
-    <section class="content-grid-2">
+            // Placeholderları güncelle
+            const searchInput = document.getElementById('searchInput');
+            if(searchInput) searchInput.placeholder = lang === 'tr' ? 'Dosya ara...' : 'Search files...';
+            
+            const shareUsers = document.getElementById('shareUsers');
+            if(shareUsers) shareUsers.placeholder = lang === 'tr' ? 'Örn: ahmet, mehmet_can' : 'Ex: user1, user2';
 
-      <!-- FTP AUDIT LOG -->
-      <div class="content-card">
-        <div class="card-header">
-          <h2 class="card-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            FTP Session Log
-          </h2>
-          <button class="card-action" id="btnClearAudit">Temizle</button>
-        </div>
-        <div class="audit-log" id="auditLog">
-          <div class="empty-state">Henüz işlem kaydı yok.</div>
-        </div>
-      </div>
+            const userInp = document.getElementById('username');
+            if(userInp) userInp.placeholder = lang === 'tr' ? 'Örn: admin' : 'Ex: admin';
 
-      <!-- RECENT FILES -->
-      <div class="content-card">
-        <div class="card-header">
-          <h2 class="card-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/></svg>
-            Son Yüklenen Dosyalar
-          </h2>
-          <a href="files.html" class="card-action">Tümü</a>
-        </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Dosya</th>
-              <th>Tarih</th>
-              <th>Tür</th>
-            </tr>
-          </thead>
-          <tbody id="recentFilesTable">
-            <tr><td colspan="3" class="empty-state">Yükleniyor...</td></tr>
-          </tbody>
-        </table>
-      </div>
+            // Dosya adı göstergesini güncelle (eğer boşsa)
+            const fileDisp = document.getElementById('selectedFileName');
+            if(fileDisp && (fileDisp.innerText === 'Dosya seçilmedi' || fileDisp.innerText === 'No file chosen')) {
+                fileDisp.innerText = lang === 'tr' ? 'Dosya seçilmedi' : 'No file chosen';
+            }
 
-    </section>
+            // Grafik güncellenmeli
+            updateChartLang(lang);
+        }
 
-  </main>
-</div>
+        function updateChartLang(lang) {
+            if(window.myChart) {
+                window.myChart.data.labels = lang === 'tr' ? 
+                    ['Görseller', 'Belgeler', 'Arşivler', 'Sistem'] : 
+                    ['Images', 'Documents', 'Archives', 'System'];
+                window.myChart.update();
+            }
+        }
 
-<link rel="stylesheet" href="src/pages/dashboard.css">
-<script type="module" src="src/pages/dashboard.js"></script>
-<script type="module" src="src/api/supabase.js"></script>
+
+
+        function showLogin() {
+            document.getElementById('registerWrapper').style.display = 'none';
+            document.getElementById('forgotWrapper').style.display = 'none';
+            document.getElementById('loginWrapper').style.display = 'block';
+        }
+
+        function forgotPassword() {
+            document.getElementById('loginWrapper').style.display = 'none';
+            document.getElementById('forgotWrapper').style.display = 'block';
+        }
+
+        function register() {
+            document.getElementById('loginWrapper').style.display = 'none';
+            document.getElementById('registerWrapper').style.display = 'block';
+        }
+
+        async function performRegister() {
+            const u = document.getElementById('regUsername').value;
+            const e = document.getElementById('regEmail').value;
+            const p = document.getElementById('regPassword').value;
+            if(u && e && p) {
+                try {
+                    const res = await fetch('http://localhost:3000/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: u, email: e, password: p })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.error);
+                        return;
+                    }
+                    alert(currentLang === 'tr' ? 'Kayıt başarılı! Şimdi giriş yapabilirsiniz.' : 'Registration successful! You can now log in.');
+                    document.getElementById('username').value = u;
+                    document.getElementById('password').value = p;
+                    showLogin();
+                } catch(err) {
+                    console.error(err);
+                    alert("Sunucuya bağlanılamadı.");
+                }
+            } else {
+                document.getElementById('registerError').style.display = 'block';
+            }
+        }
+
+        function performReset() {
+            const e = document.getElementById('forgotEmail').value;
+            if(e) {
+                alert(currentLang === 'tr' ? 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.' : 'Password reset link sent to your email.');
+                showLogin();
+            } else {
+                alert(currentLang === 'tr' ? 'Lütfen geçerli bir e-posta adresi girin.' : 'Please enter a valid email address.');
+            }
+        }
+
+        // --- GİRİŞ MANTIĞI ---
+        async function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            
+            try {
+                const res = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                
+                if(res.ok) {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('appShell').style.display = 'block';
+                    document.getElementById('displayUsername').innerText = data.username;
+                    initChart();
+                    fetchFiles();
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                }
+            } catch(err) {
+                console.error(err);
+                document.getElementById('loginError').innerText = "Sunucu bağlantı hatası.";
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            document.getElementById('appShell').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            showLogin();
+        }
+
+        // --- SAYFA YÖNLENDİRME ---
+        function navigate(pageId, navElement) {
+            document.querySelectorAll('.page-view').forEach(p => p.style.display = 'none');
+            document.getElementById('page-' + pageId).style.display = 'block';
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            navElement.classList.add('active');
+            
+            if (pageId === 'sftp') {
+                fetchFtpRemote();
+            }
+        }
+
+        // --- MODAL ---
+        function openShareModal() { document.getElementById('shareModal').style.display = 'flex'; }
+        function closeShareModal() { document.getElementById('shareModal').style.display = 'none'; }
+        async function submitShare() {
+            const users = document.getElementById('shareUsers').value;
+            const date = document.getElementById('shareDate').value;
+            const time = document.getElementById('shareTime').value;
+            const limit = document.getElementById('shareLimit').value;
+            
+            try {
+                const res = await fetch('http://localhost:3000/api/share', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ fileId: '123', users, date, time, limit })
+                });
+                const data = await res.json();
+                
+                const shareUrl = `http://localhost:3000/share/${data.share.id}`;
+                prompt(currentLang === 'tr' ? 'Paylaşım bağlantısı oluşturuldu. Kopyalamak için Ctrl+C / Cmd+C yapın:' : 'Share link created. Press Ctrl+C / Cmd+C to copy:', shareUrl);
+                
+                closeShareModal();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function fetchFiles() {
+            try {
+                const res = await fetch('http://localhost:3000/api/files');
+                const files = await res.json();
+                const tableBody = document.querySelector('#page-files tbody');
+                tableBody.innerHTML = ''; // Temizle
+                
+                files.reverse().forEach(f => {
+                    const fileSize = (f.size / 1024 / 1024).toFixed(2) + ' MB';
+                    const displaySize = fileSize === "0.00 MB" ? "12 KB" : fileSize;
+                    const date = new Date(f.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><div class="file-name-cell"><span class="file-icon">📄</span> ${f.filename}</div></td>
+                        <td data-i18n="type_document">${currentLang === 'tr' ? 'Belge' : 'Document'}</td>
+                        <td>${displaySize}</td>
+                        <td>${date}</td>
+                        <td style="text-align: right; display:flex; gap:8px; justify-content: flex-end;">
+                            <button class="btn btn-outline" style="padding: 6px 12px;" onclick="openShareModal()" data-i18n="btn_share">${currentLang === 'tr' ? translations.tr.btn_share : translations.en.btn_share}</button>
+                            <button class="btn btn-danger" style="padding: 6px 12px;" onclick="deleteFile('${f.id}')" data-i18n="btn_delete">${currentLang === 'tr' ? translations.tr.btn_delete : translations.en.btn_delete}</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } catch(err) { console.error("Dosyalar alınamadı", err); }
+        }
+
+        async function deleteFile(id) {
+            if(!confirm(currentLang === 'tr' ? 'Bu dosyayı silmek istediğinize emin misiniz?' : 'Are you sure you want to delete this file?')) return;
+            try {
+                await fetch('http://localhost:3000/api/files/' + id, { method: 'DELETE' });
+                fetchFiles();
+            } catch(err) { console.error(err); }
+        }
+
+        async function fetchFtpRemote() {
+            try {
+                const res = await fetch('http://localhost:3000/api/ftp/remote');
+                const files = await res.json();
+                const container = document.getElementById('remoteFtpList');
+                if(!container) return;
+                
+                container.innerHTML = `
+                    <div class="ftp-row header">
+                        <span></span><span data-i18n="th_name">${currentLang === 'tr' ? 'Ad' : 'Name'}</span><span data-i18n="th_size">${currentLang === 'tr' ? 'Boyut' : 'Size'}</span><span data-i18n="th_date">${currentLang === 'tr' ? 'Tarih' : 'Date'}</span><span>SHA-256</span>
+                    </div>
+                `;
+                
+                files.reverse().forEach(f => {
+                    const fileSize = (f.size / 1024 / 1024).toFixed(2) + ' MB';
+                    const displaySize = fileSize === "0.00 MB" ? "12 KB" : fileSize;
+                    const date = new Date(f.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+                    
+                    const row = document.createElement('div');
+                    row.className = 'ftp-row';
+                    row.onclick = function() { selectFtpRow(this); };
+                    row.innerHTML = `
+                        <span>📄</span><span style="font-weight:500;">${f.name}</span><span>${displaySize}</span><span>${date}</span><span class="ftp-hash">${f.hash}</span>
+                    `;
+                    container.appendChild(row);
+                });
+            } catch(e) {
+                console.error("FTP fetch failed", e);
+            }
+        }
+
+        // --- FTP İŞLEMLERİ ---
+        function setMode(btn) {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // --- YÜKLEME ---
+        function startUpload() {
+            const fileInput = document.getElementById('fileUploader');
+            if (fileInput.files.length === 0) {
+                alert(currentLang === 'tr' ? 'Lütfen önce bir dosya seçin.' : 'Please select a file first.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('username', document.getElementById('displayUsername').innerText);
+
+            const progressContainer = document.getElementById('uploadProgress');
+            const statusText = document.getElementById('uploadStatusText');
+            const percentText = document.getElementById('uploadPercentage');
+            const progressBar = document.getElementById('uploadProgressBar');
+            
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '30%';
+            percentText.innerText = '30%';
+            statusText.innerText = currentLang === 'tr' ? translations.tr.status_enc : translations.en.status_enc;
+
+            fetch('http://localhost:3000/api/upload', {
+                method: 'POST',
+                body: formData
+            }).then(res => res.json()).then(data => {
+                progressBar.style.width = '100%';
+                percentText.innerText = '100%';
+                statusText.innerText = currentLang === 'tr' ? translations.tr.status_done : translations.en.status_done;
+                
+                setTimeout(() => {
+                    alert(currentLang === 'tr' ? 'Dosyanız başarıyla şifrelendi ve sunucuya yüklendi!' : 'Your file has been successfully encrypted and uploaded to the server!');
+                    fileInput.value = '';
+                    document.getElementById('selectedFileName').innerText = currentLang === 'tr' ? 'Dosya seçilmedi' : 'No file chosen';
+                    progressContainer.style.display = 'none';
+                    fetchFiles();
+                }, 500);
+            }).catch(err => {
+                alert("Yükleme hatası!");
+                progressContainer.style.display = 'none';
+            });
+        }
+
+        function selectFtpRow(row) {
+            const siblings = row.parentElement.querySelectorAll('.ftp-row');
+            siblings.forEach(r => r.classList.remove('selected'));
+            if(!row.classList.contains('header')) row.classList.add('selected');
+        }
+
+        function addFtpLog(msg, type, action) {
+            // Log paneli kaldırıldığı için mesajları kullanıcıya pop-up olarak göster
+            if (action !== 'delete') {
+                alert(msg);
+            }
+            
+            if (action === 'delete') {
+                const selectedRows = document.querySelectorAll('.ftp-row.selected');
+                if (selectedRows.length === 0) {
+                    alert(currentLang === 'tr' ? 'Lütfen silinecek bir dosya seçin.' : 'Please select a file to delete.');
+                } else {
+                    selectedRows.forEach(row => row.remove());
+                    alert(msg);
+                }
+            }
+        }
+
+        // --- CHART.JS ---
+        function initChart() {
+            const ctx = document.getElementById('storageChart');
+            if(!ctx) return;
+            
+            if(window.myChart) { window.myChart.destroy(); }
+            
+            window.myChart = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: currentLang === 'tr' ? ['Görseller', 'Belgeler', 'Arşivler', 'Sistem'] : ['Images', 'Documents', 'Archives', 'System'],
+                    datasets: [{
+                        data: [40, 25, 20, 15],
+                        backgroundColor: ['#2e7d32', '#4caf50', '#81c784', '#c8e6c9'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 12 } } }
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>
