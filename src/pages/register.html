@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kayıt Ol — Dosya Vadisi WSTP</title>
+<meta name="description" content="Güvenli dosya transfer platformuna kayıt olun.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--panel:#161b24;--card:#1c2333;--border:#1e2d3d;--accent:#3b82f6;--accent-dim:#1d4ed8;--green:#22c55e;--red:#ef4444;--text:#e2e8f0;--muted:#64748b;--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px}
+.auth-shell{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+.auth-left{display:flex;align-items:center;justify-content:center;padding:40px;background:var(--panel);border-right:1px solid var(--border);overflow-y:auto}
+.auth-right{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f1117 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.auth-form-box{width:100%;max-width:400px;padding:20px 0}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.brand-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#6366f1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-name{font-size:18px;font-weight:700}
+.brand-sub{font-size:11px;color:var(--muted);font-family:var(--mono)}
+h2{font-size:22px;font-weight:700;margin-bottom:6px}
+.auth-subtitle{color:var(--muted);font-size:13px;margin-bottom:28px}
+.field{margin-bottom:16px}
+label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+input[type=email],input[type=password],input[type=text]{width:100%;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;transition:border-color .15s}
+input:focus{border-color:var(--accent)}
+.btn-submit{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:8px}
+.btn-submit:hover{background:var(--accent-dim)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed}
+.result{margin-top:14px;padding:10px 14px;border-radius:6px;font-size:12px;display:none}
+.result.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;display:block}
+.result.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac;display:block}
+.result.info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#93c5fd;display:block}
+.auth-link{margin-top:20px;text-align:center;font-size:13px;color:var(--muted)}
+.auth-link a{color:var(--accent);font-weight:500}
+.mfa-setup{display:none;margin-top:20px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.mfa-setup h3{font-size:14px;font-weight:600;margin-bottom:8px}
+.mfa-setup p{font-size:12px;color:var(--muted);margin-bottom:14px}
+.mfa-qr{width:160px;height:160px;border-radius:8px;display:block;margin:0 auto 14px;border:1px solid var(--border)}
+.mfa-row{display:flex;gap:8px}
+.mfa-row input{flex:1;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:16px;text-align:center;letter-spacing:4px;outline:none}
+.mfa-row input:focus{border-color:var(--accent)}
+.btn-mfa{padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap}
+.btn-skip{display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;width:100%}
+.btn-skip:hover{color:var(--text)}
+.glow{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,.15) 0%,transparent 70%);border-radius:50%}
+.hero-content{text-align:center;z-index:1;padding:40px}
+.hero-title{font-size:28px;font-weight:700;margin-bottom:12px;background:linear-gradient(135deg,#fff,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:#94a3b8;font-size:14px;margin-bottom:32px;line-height:1.6}
+.steps{display:flex;flex-direction:column;gap:16px;text-align:left}
+.step{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px}
+.step-num{width:26px;height:26px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.step-title{font-size:12px;font-weight:600;color:#e2e8f0}
+.step-desc{font-size:11px;color:#64748b;margin-top:2px}
+@media(max-width:768px){.auth-shell{grid-template-columns:1fr}.auth-right{display:none}}
+</style>
+</head>
+<body>
+<div class="auth-shell">
+  <div class="auth-left">
+    <div class="auth-form-box">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">Dosya Vadisi</div>
+          <div class="brand-sub">WSTP — Secure Transfer Platform</div>
+        </div>
+      </div>
+
+      <h2>Hesap Oluştur</h2>
+      <p class="auth-subtitle">Güvenli transfere başlamak için kayıt olun</p>
+
+      <form id="signupForm" novalidate>
+        <div class="field">
+          <label for="username">Kullanıcı Adı</label>
+          <input type="text" id="username" placeholder="kullanici_adi" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="email">E-posta</label>
+          <input type="email" id="email" placeholder="ornek@email.com" required autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="password">Şifre <span style="color:#64748b;font-weight:400;font-size:10px;">(en az 8 karakter)</span></label>
+          <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" minlength="8">
+        </div>
+        <div class="field">
+          <label for="confirmPassword">Şifre Tekrar</label>
+          <input type="password" id="confirmPassword" placeholder="••••••••" required autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn">Hesap Oluştur</button>
+        <div class="result" id="result"></div>
+      </form>
+
+      <div class="mfa-setup" id="mfaSetupSection">
+        <h3>İki Faktörlü Doğrulama (MFA)</h3>
+        <p>Google Authenticator veya Authy ile QR kodu tarayın, ardından kodu girin:</p>
+        <img class="mfa-qr" id="mfaQrCode" src="" alt="MFA QR Kod">
+        <div class="mfa-row">
+          <input type="text" id="mfaVerifyCode" maxlength="6" inputmode="numeric" placeholder="000000" autocomplete="one-time-code">
+          <button class="btn-mfa" id="mfaVerifyBtn">Doğrula ve Bitir</button>
+        </div>
+        <button class="btn-skip" id="mfaSkipBtn">Şimdi Atla (MFA daha sonra etkinleştirilebilir)</button>
+      </div>
+
+      <div class="auth-link">
+        Zaten hesabınız var mı? <a href="login.html">Giriş Yapın</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="glow"></div>
+    <div class="hero-content">
+      <div class="hero-title">3 Adımda<br>Güvenli Transfer</div>
+      <p class="hero-sub">Hesabınız oluşturulur oluşturulmaz<br>RSA-2048 anahtar çifti otomatik üretilir.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Hesap Oluştur</div>
+            <div class="step-desc">RSA & AES anahtarları otomatik üretilir</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">MFA Etkinleştir</div>
+            <div class="step-desc">TOTP ile hesabınızı ek katmanla koruyun</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Transfer Başlat</div>
+            <div class="step-desc">E2E şifreli, parçalı, kaldığı yerden devam eder</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="../api/supabase.js"></script>
+<script type="module" src="register.js"></script>
+</body>
+</html>

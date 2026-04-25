@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/styles.css">
+    <title>Güvenli Dosya Yükleme</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+            background-color: var(--color-gray-50);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h2 {
+            font-size: 2rem;
+            color: #111827;
+            margin: 0 0 5px 0;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="../../public/img/logo.png" alt="Logo">
+            <h1>Dosya Vadisi</h1>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html">Ana Sayfa</a>
+            <a href="files.html">Dosyalarım</a>
+            <a href="shared.html">Bana Paylaşılanlar</a>
+            <a href="upload.html" class="active">Dosya Yükle</a>
+			<div id="logout">Çıkış Yap</div>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h2>Dosya Yükle</h2>
+                <p class="page-subtitle">Dosyalarınızı güvenli bir şekilde şifreleyip yükleyin</p>
+            </div>
+        </div>
+
+        <div class="upload-grid">
+            <!-- Left Column: Upload Area -->
+            <div class="upload-sticky">
+                <div class="upload-drop-zone">
+                    <input type="file" multiple class="hidden" id="fileInput">
+                    <label for="fileInput" class="upload-label">
+                        <div class="upload-icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" x2="12" y1="3" y2="15"></line>
+                            </svg>
+                        </div>
+                        <div class="text-center">
+                            <p class="upload-text-main">Dosyaları buraya sürükleyin</p>
+                            <p class="upload-text-sub">veya tarayıcıdan seçin</p>
+                            <span class="btn-upload-select">Dosyaları Seç</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Action Button -->
+                <button id="uploadBtn" class="btn btn-primary w-100" style="margin-top: 20px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        style="margin-right: 8px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" x2="12" y1="3" y2="15"></line>
+                    </svg>
+                    Şifrele ve Yükle
+                </button>
+                <div id="status" style="margin-top: 10px;"></div>
+            </div>
+
+            <!-- Right Column: Queue & Status -->
+            <div class="space-y-4">
+                <div class="queue-header">
+                    <h2 class="queue-title">Yükleme Kuyruğu (0)</h2>
+                    <button class="btn-queue-clear">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 6px;">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                        Temizle
+                    </button>
+                </div>
+
+                <!-- File List Container -->
+                <div id="fileListQueue" class="space-y-4">
+                    <!-- Items will be injected here via JS if needed, or by default just empty -->
+                </div>
+
+                <!-- Success/Share Card (Initially Hidden) -->
+                <!-- Use existing logic. Existing JS writes to div id="status". I've kept it above. -->
+            </div>
+        </div>
+
+        <script type="module" src="../components/upload.js"></script>
+    </main>
+</body>
+
+</html>

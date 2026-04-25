@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dosya Vadisi — Dashboard</title>
+<meta name="description" content="Secure Web-FTP Storage — Şifreli dosya transferi, VFS klasör yönetimi ve audit log.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">Dosya Vadisi</div>
+        <div class="brand-tag">S-FTP Platform</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item active" id="navDashboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="sftp.html" class="nav-item" id="navSFTP">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        S-FTP İstemcisi
+        <span class="nav-badge">Yeni</span>
+      </a>
+      <a href="files.html" class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Dosyalarım
+      </a>
+      <a href="shared.html" class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Paylaşılanlar
+      </a>
+      <a href="upload.html" class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        Dosya Yükle
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-pill" id="userPill">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Yükleniyor...</div>
+          <div class="user-role">Güvenli Kullanıcı</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logout" title="Çıkış Yap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-area">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">Dashboard</h1>
+        <div class="page-date" id="currentDate"></div>
+      </div>
+      <div class="topbar-right">
+        <div class="security-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          E2E Şifreli
+        </div>
+        <a href="sftp.html" class="btn-primary-sm">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+          S-FTP Aç
+        </a>
+      </div>
+    </header>
+
+    <!-- STAT CARDS -->
+    <section class="stats-grid" aria-label="İstatistikler">
+      <div class="stat-card">
+        <div class="stat-body">
+          <div class="stat-label">Toplam Dosya</div>
+          <div class="stat-value" id="totalFiles">0</div>
+        </div>
+        <div class="stat-icon stat-blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-body">
+          <div class="stat-label">Giden Paylaşım</div>
+          <div class="stat-value" id="sharedByMe">0</div>
+        </div>
+        <div class="stat-icon stat-green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-body">
+          <div class="stat-label">Gelen Paylaşım</div>
+          <div class="stat-value" id="sharedWithMe">0</div>
+        </div>
+        <div class="stat-icon stat-purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 8 12 3 17 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-body">
+          <div class="stat-label">Son Aktivite</div>
+          <div class="stat-value stat-value-sm" id="lastActivity">—</div>
+        </div>
+        <div class="stat-icon stat-orange">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRID: VFS TREE + TRANSFER QUEUE + CHART -->
+    <section class="content-grid">
+
+      <!-- VFS NAVIGATION TREE -->
+      <div class="content-card card-vfs">
+        <div class="card-header">
+          <h2 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Sanal Dosya Sistemi
+          </h2>
+          <a href="sftp.html" class="card-action">Tam Ekran</a>
+        </div>
+        <div class="vfs-tree" id="vfsTree">
+          <div class="vfs-loading">
+            <div class="mini-spinner"></div>
+            <span>Yükleniyor...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSFER QUEUE -->
+      <div class="content-card card-queue">
+        <div class="card-header">
+          <h2 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Transfer Kuyruğu
+          </h2>
+          <span class="queue-badge" id="queueBadge">0</span>
+        </div>
+        <div class="queue-list" id="queueList">
+          <div class="empty-state">Aktif transfer yok</div>
+        </div>
+      </div>
+
+      <!-- FILE TYPE CHART -->
+      <div class="content-card card-chart">
+        <div class="card-header">
+          <h2 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+            Dosya Dağılımı
+          </h2>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="fileTypeChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- AUDIT LOG + RECENT FILES -->
+    <section class="content-grid-2">
+
+      <!-- FTP AUDIT LOG -->
+      <div class="content-card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            FTP Session Log
+          </h2>
+          <button class="card-action" id="btnClearAudit">Temizle</button>
+        </div>
+        <div class="audit-log" id="auditLog">
+          <div class="empty-state">Henüz işlem kaydı yok.</div>
+        </div>
+      </div>
+
+      <!-- RECENT FILES -->
+      <div class="content-card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/></svg>
+            Son Yüklenen Dosyalar
+          </h2>
+          <a href="files.html" class="card-action">Tümü</a>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Dosya</th>
+              <th>Tarih</th>
+              <th>Tür</th>
+            </tr>
+          </thead>
+          <tbody id="recentFilesTable">
+            <tr><td colspan="3" class="empty-state">Yükleniyor...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<link rel="stylesheet" href="dashboard.css">
+<script type="module" src="dashboard.js"></script>
+<script type="module" src="../api/supabase.js"></script>
+</body>
+</html>
