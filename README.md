@@ -22,6 +22,7 @@
 
 ### 🌐 [Canlı Demo → skarayil.github.io/FileValley_BVHackathon](https://skarayil.github.io/FileValley_BVHackathon/)
 
+<br/>
 
 [✨ Özellikler](#-özellikler) • [🚀 Kurulum](#-kurulum-ve-çalıştırma) • [📁 Proje Yapısı](#-proje-yapısı) • [🔐 Güvenlik](#-güvenlik) • [👩‍💻 Geliştirici](#-geliştirici)
 
